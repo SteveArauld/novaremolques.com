@@ -1,0 +1,785 @@
+/*
+	1. SHORTCODE HOT DEAL
+	2. SHORTCODE BANNER
+	3. SHORTCODE LOGO SLIDER
+	4. SHORTCODE PRODUCT SLIDER
+	5. SHORTCODE TESTIMONIAL 
+	6. SHORTCODE TEAM MEMBER
+	7. SHORTCODE PRODUCT BRANDS
+	8. SHORTCODE TAB PRODUCTS
+	9. SHORTCODE SUBSCRIPTION
+	10. SHORTCODE PRODUCTS CATEGORIES LIST
+	11. SHORTCODE PRODUCTS DEALS
+	12. SHORTCODE COUPONS
+	13. SHORTCODE SOCIAL
+	14. SHORTCODE FILTER BY TAXONOMIES
+*/
+/*-------------------------------------------------------------------------------------------------------------------
+	EFFECTS
+---------------------------------------------------------------------------------------------------------------------*/
+.animated{-webkit-animation-duration: 1s;animation-duration: 1s;-webkit-animation-fill-mode: both;animation-fill-mode: both }@-webkit-keyframes fadeIn{0%{opacity: 0}100%{opacity: 1}}@keyframes fadeIn{0%{opacity: 0}100%{opacity: 1}}
+.fadeIn{-webkit-animation-name: fadeIn;animation-name: fadeIn }@-webkit-keyframes fadeOut{0%{opacity: 1}100%{opacity: 0}}@keyframes fadeOut{0%{opacity: 1}100%{opacity: 0}}
+.fadeOut{-webkit-animation-name: fadeOut;animation-name: fadeOut }
+.ts-effect-image{text-align: center;backface-visibility: hidden;-webkit-backface-visibility: hidden;}
+.ts-effect-image .image-link{display: block;position: relative;max-width: 100%;overflow: hidden;}
+/*-------------------------------------------------------------------------------------------------------------------
+	1. SHORTCODE HOT DEAL
+---------------------------------------------------------------------------------------------------------------------*/
+.counter-wrapper {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 18px;
+	justify-content: center;
+}
+.counter-wrapper > div {
+	min-width: 54px;
+	text-align: center;
+}
+.counter-wrapper > div,
+.counter-wrapper > span {
+	font-size: 40px;
+	line-height: 1;
+}
+.counter-wrapper .number-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+	font-weight: 600;
+}
+.counter-wrapper .ref-wrapper {
+	text-align: center;
+	font-size: 0.35em;
+	line-height: 20px;
+	margin-top: 5px;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------
+	2. SHORTCODE BANNER
+---------------------------------------------------------------------------------------------------------------------*/
+.ts-banner,
+.ts-banner * {
+	backface-visibility: hidden;
+	-webkit-backface-visibility: hidden;
+} 
+.ts-banner {
+	width: 100%;
+	overflow: hidden;
+}
+.ts-banner .banner-wrapper {
+	position: relative;
+	overflow: hidden;
+	-webkit-backface-visibility: hidden;
+	-moz-backface-visibility: hidden;
+	-webkit-transform: translate3d(0, 0, 0);
+	-moz-transform: translate3d(0, 0, 0)
+}
+.ts-banner .banner-wrapper > a {
+	position: absolute;
+	inset: 0;
+	z-index: 6;
+}
+.ts-banner .box-content h2 {
+	line-height: 1.3;
+}
+.ts-banner-button a.button {
+	display: inline-block;
+}
+.banner-wrapper > * {
+	position: relative; 
+	z-index: 3;
+}
+.ts-banner .background-overlay {
+	height: 100%;
+	width: 100%;
+	top: 0;left: 0;
+	position: absolute;
+	z-index: 4;
+}
+.ts-banner .banner-bg img {
+	position: relative;
+	margin: 0 auto;
+	width: 100%;
+	transition: 0.3s ease 0s;
+}
+.ts-banner .box-content {
+    position: absolute;
+    z-index: 5;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	top: 0;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+.ts-banner .banner-bg .mobile-banner{display: none;}
+.ts-banner .ts-banner-button a.button{
+	padding: 5px 20px; 
+	font-size: calc(var(--ts-btn-font-size) - 1px);
+}
+.ts-banner .content-text u{
+	text-decoration-line: underline;
+	text-underline-offset: 5px;
+    text-decoration-thickness: 2px;
+}
+
+/*** Effects Banner ***/
+.eff-grow-rotate:hover img.bg-image,
+.eff-zoom-in:hover img.bg-image {
+	transform: scale(1.12,1.12);
+}
+.eff-grow-rotate img.bg-image{
+	transform: rotate(0deg) scale(1,1);
+	transition: 0.3s ease 0s;
+}
+.eff-grow-rotate:hover img.bg-image {
+	transform: rotate(3deg) scale(1.12);
+}
+.eff-flash .banner-wrapper {
+	position: relative;
+	overflow: hidden;
+}
+.eff-flash .banner-wrapper:before, 
+.eff-flash .banner-wrapper:after {
+	content: '';
+	width: 100%;
+	height: 100%;
+	background: rgba(255,255,255,.3);
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 5;
+	transition: transform .4s,opacity .15s ease-in-out 0s;
+	opacity: 0;
+}
+.eff-flash:hover .banner-wrapper:before {
+	transform: scale(0,1);
+	opacity: 1;
+}
+.eff-flash:hover .banner-wrapper:after {
+	transform: scale(1,0);
+	opacity: 1;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------
+	3. SHORTCODE LOGO SLIDER
+---------------------------------------------------------------------------------------------------------------------*/
+.ts-logo-slider-wrapper, .ts-product-brand-wrapper {
+	--ts-h-gap: 17px;
+	--ts-v-gap: 17px;
+}
+.ts-logo-slider-wrapper .item > a {
+    background: var(--ts-brand-bg);
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    min-height: 80px;
+	transition: none;
+	border-radius: var(--ts-border-radius);
+}
+.ts-logo-slider-wrapper.has-border .item > a {
+	border-width: 1px;
+	border-style: solid;
+}
+.ts-logo-slider-wrapper .item a img {
+	max-height: 80px;
+	width: auto;
+	transition: 200ms ease;
+	border-radius: var(--ts-border-radius);
+}
+.ts-logo-slider-wrapper .item:hover img {filter: grayscale(1);}
+.ts-logo-slider-wrapper .item img {transition: 200ms ease;}
+/**/
+.ts-logo-slider-wrapper.item-border .item > a {
+	border-width: 1px;
+	border-style: solid;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------
+	4. SHORTCODE PRODUCT SLIDER
+---------------------------------------------------------------------------------------------------------------------*/
+.ts-shortcode {position: relative; clear: both;}
+.ts-shortcode:not(.ts-product) {overflow: hidden}
+.ts-shortcode .shortcode-heading-wrapper h3:empty, 
+.ts-shortcode .shortcode-heading-wrapper .shortcode-title:empty {margin-bottom: 0; padding-bottom: 0; border: 0;}
+.column-tabs .list-categories,
+.ts-shortcode .shortcode-heading-wrapper {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+}	
+.column-tabs * {
+	color: inherit;
+}
+.shortcode-heading-wrapper .ts-countdown-wrapper > span {
+	font-size: 0.93em;
+	font-weight: 500;
+	color: var(--ts-gray-color);
+}
+.shortcode-heading-wrapper .ts-countdown-wrapper,
+.shortcode-heading-wrapper .shop-more {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	margin-left: auto; /*rtl*/
+}
+.shortcode-heading-wrapper .shop-more {
+	min-height: 20px;
+}
+.column-tabs .shop-more {line-height: 1;}
+.column-tabs .shop-more,
+.shortcode-heading-wrapper .ts-countdown-wrapper + .shop-more {
+	position: relative;
+	padding-left: 30px; /*rtl*/
+}
+.column-tabs .shop-more:before,
+.shortcode-heading-wrapper .ts-countdown-wrapper + .shop-more:before {
+	content: '';
+	width: 0;
+	height: 20px;
+	border-left: 1px solid var(--ts-border); /*rtl*/
+	position: absolute;
+	top: 50%;
+	left: 0;
+	transform: translateY(-50%);
+}
+.column-tabs .shop-more:before {height: 14px;}
+
+/*-------------------------------------------------------------------------------------------------------------------
+	5. SHORTCODE TESTIMONIAL 
+---------------------------------------------------------------------------------------------------------------------*/
+.ts-testimonial-wrapper .author-image-meta {
+	display: flex;
+    flex-wrap: wrap;
+    gap: 0 15px;
+    align-items: center;
+    margin: 8px 0 0;
+}
+.ts-testimonial-wrapper .author-image-meta .image {width: 50px;}
+.ts-testimonial-wrapper .author-image-meta .image img {    
+	border-radius: 50%;
+	box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+}
+.ts-testimonial-wrapper .author-image-meta .author-meta {
+	color: var(--ts-gray-color);
+    font-size: 0.85rem;
+    line-height: 18px;
+	font-weight: normal;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 10px;
+	flex: 1;
+}
+.ts-testimonial-wrapper .author-image-meta .author-meta .author a {color: var(--ts-text-color);}
+.ts-testimonial-wrapper .author-image-meta .author-meta .author {width: 100%;}
+.ts-testimonial-wrapper .author-image-meta .author-meta .role + .date-time {
+	padding-left: 20px; /* rtl */
+	position: relative;
+}
+.ts-testimonial-wrapper .author-image-meta .author-meta .role + .date-time:before {
+    content: " ";
+    display: inline-block;
+    width: 10px;
+    height: 1px;
+    background: var(--ts-border);
+    position: absolute;
+    left: 0; /* rtl */
+    top: 50%;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------
+	6. SHORTCODE TEAM MEMBER
+---------------------------------------------------------------------------------------------------------------------*/
+.ts-team-members .team-content,
+.ts-team-members .team-info {
+	display: flex;
+	flex-flow: column wrap;
+	align-items: center;
+	gap: 25px;
+}
+.ts-team-members .image-thumbnail img {border-radius: 10px;}
+.ts-team-members .team-info {gap: 8px;}
+.ts-team-members .team-info > * {margin: 0; padding: 0;}
+.ts-team-members .team-info .name {font-size: 1.33rem;}
+.ts-team-members .team-info > .member-social {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 20px;
+	font-size: 25px;
+	margin-top: 4px;
+}
+.ts-team-members .team-info .member-social a {text-decoration: none; color: inherit;}
+.ts-team-members .team-info .member-social a:hover {color: var(--ts-primary-color);}
+
+/*-------------------------------------------------------------------------------------------------------------------
+	7. SHORTCODE PRODUCT BRANDS
+---------------------------------------------------------------------------------------------------------------------*/
+.ts-product-brand-wrapper .item > a {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    min-height: 80px;
+	transition: none;
+	border: 1px solid #EAEFF2;
+	border-radius: var(--ts-border-radius);
+	padding: 0 10px;
+}
+.ts-product-brand-wrapper .item a img {
+	max-height: 80px;
+	width: auto;
+	transition: 200ms ease;
+	border-radius: var(--ts-border-radius);
+}
+.ts-product-brand-wrapper .item:hover a {
+	border-color: var(--ts-heading-color);
+}
+.ts-product-brand-wrapper .meta-wrapper {
+	margin-top: 15px;
+	text-align: center;
+	padding: 0;
+	line-height: 1.3;
+	display: flex;
+	flex-flow: column wrap;
+	gap: 5px;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------
+	8. SHORTCODE TAB PRODUCTS
+---------------------------------------------------------------------------------------------------------------------*/
+.column-tabs .list-categories {
+	justify-content: space-between;
+}
+.ts-product-in-product-type-tab-wrapper .column-tabs, 
+.column-tabs .list-categories, 
+.ts-shortcode .shortcode-heading-wrapper {
+	margin-bottom: 30px;
+	gap: 0 30px;
+}
+.ts-shortcode .shortcode-title {
+	flex: 1;
+	margin-bottom: 0;
+}
+.column-tabs .list-categories ul.tabs {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px 30px;
+	margin-left: auto; /* rtl */
+}
+.column-tabs .list-categories ul.tabs li {
+	font-size: 1em;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	line-height: 1.4;
+	font-weight: 500;
+	position: relative;
+	overflow: hidden;
+}
+.column-tabs .list-categories ul.tabs li:after {
+	content: '';
+	width: 100%;
+    height: 1px;
+    border-bottom: 1px solid;
+	position: absolute;
+	bottom: 0;
+	left: -100%;/* rtl */
+	right: auto;/* rtl */
+	transition: 250ms ease;
+}
+.column-tabs .list-categories ul.tabs li:hover:after,
+.column-tabs .list-categories ul.tabs li.current:after {
+	left: 0;/* rtl */
+	right: 0;/* rtl */
+}
+.column-tabs .list-categories ul.tabs li,
+.column-tabs .list-categories ul.tabs li:hover,
+.column-tabs .list-categories ul.tabs li.current {
+	color: var(--ts-heading-color);
+}
+.column-tabs .list-categories ul.tabs li:hover {
+	cursor: pointer;
+}
+.column-tabs .list-categories ul.tabs li.current {
+	cursor: default;
+}
+.column-tabs ul.tabs,
+.column-tabs .heading-tab .heading-title {
+	margin-bottom: 0 !important;
+}
+.column-tabs ul.tabs {
+	display: flex; 
+	flex-wrap: wrap; 
+	gap: 20px 0;
+}
+.column-tabs ul.tabs li {
+	list-style: none;
+	padding: 0;
+	position: relative;
+	font-family: var(--ts-heading-font-family);
+	font-weight: var(--ts-heading-font-weight);
+	font-style: var(--ts-heading-font-style);
+	line-height: var(--ts-heading-line-height);
+	letter-spacing: var(--ts-heading-letter-spacing);
+}
+.ts-product-in-product-type-tab-wrapper .column-tabs ul.tabs li:not(:last-child) {
+	padding: 0 20px 0 0; /* rtl */
+	margin: 0 20px 0 0; /* rtl */
+}
+.ts-product-in-product-type-tab-wrapper .column-tabs ul.tabs li:not(:last-child):after {
+	content: '';
+	width: 1px;
+	height: 20px;
+	background: var(--ts-border);
+	position:absolute;
+	right: 0; /* rtl */
+	top: 50%;
+	transform: translateY(-50%);
+}
+.ts-product-in-product-type-tab-wrapper .column-tabs {
+	display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+.ts-product-in-product-type-tab-wrapper .column-tabs .shop-more {padding: 5px 0 0;}
+.ts-product-in-product-type-tab-wrapper .column-tabs .shop-more:before {display: none;}
+.ts-product-in-product-type-tab-wrapper .column-tabs ul.tabs li {color: var(--ts-gray-color);}
+.ts-product-in-product-type-tab-wrapper .column-tabs ul.tabs li:hover,
+.ts-product-in-product-type-tab-wrapper .column-tabs ul.tabs li.current {color: var(--ts-heading-color);}
+.column-tabs ul.tabs li span.count {text-transform: none;}
+.ts-product-in-category-tab-wrapper .column-products {
+	display: flex; 
+	flex-flow: column wrap;
+	gap: var(--ts-h-gap);
+}
+.ts-shortcode .tab-banner {
+	grid-column: span 2;
+	overflow: hidden;
+	display: inline-grid;
+	position: relative;
+	align-self: flex-start;
+}
+.ts-shortcode .tab-banner img {
+	border-radius: 10px;
+}
+.ts-shortcode .tab-banner:before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -100%;
+	z-index: 2;
+	display: block;
+	width: 50%;
+	height: 100%;
+	background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,.1) 100%);transform: skewX(-25deg);
+}
+.ts-shortcode .tab-banner:hover:before {
+	-webkit-animation: shine 1.2s;
+	animation: shine 1.2s;
+}
+
+/*** Fix loading ***/
+.woocommerce .column-products.loading .products {transition: 300ms ease 0s;}
+.column-products.loading:after {top: 35%;}
+
+/*-------------------------------------------------------------------------------------------------------------------
+	9. SHORTCODE SUBSCRIPTION
+---------------------------------------------------------------------------------------------------------------------*/
+.mailchimp-subscription .newsletter p,
+.mailchimp-subscription .widget-title-wrapper .widget-title {margin-bottom: 0;}
+.mailchimp-subscription .newsletter {line-height: 1.4em;}
+.widget-container.mailchimp-subscription .widget-title-wrapper,
+.widget-container.mailchimp-subscription .widget-title-wrapper .widget-title {margin-bottom: 22px;}
+.mc4wp-form .subscribe-email {
+	display: flex;
+	flex-wrap: wrap;
+	color: var(--ts-input-color);
+	background: var(--ts-input-background-color);
+	padding: 3px;
+    border-radius: var(--ts-border-radius);
+	overflow: hidden;
+	border: 1px solid;
+}
+form .subscribe-email input[type="text"],
+form .subscribe-email input[type="tel"],
+form .subscribe-email input[type="number"],
+form .subscribe-email input[type="password"],
+form .subscribe-email input[type="email"] {
+	margin: 0;
+	padding-top: 9px;
+	padding-bottom: 9px;
+	flex: 1;
+	background: transparent !important;
+	border-color: transparent !important;
+	color: inherit !important;
+}
+form .subscribe-email button,
+form .subscribe-email input[type="text"],
+form .subscribe-email input[type="tel"],
+form .subscribe-email input[type="number"],
+form .subscribe-email input[type="password"],
+form .subscribe-email input[type="email"] {border: 0 !important;}
+form .subscribe-email input[type="email"] {padding-right: 5px;/* rtl */}
+.mc4wp-form .subscribe-email a {color: inherit;}
+form .subscribe-email button {white-space: nowrap; position: relative;}
+form .processing button {color: transparent !important;}
+.woocommerce .style-button-icon .subscribe-email button.button,
+.style-button-icon .subscribe-email button.button {
+	font-size: 0;
+    padding: 0;
+    text-align: center;
+    background: transparent;
+    color: inherit;
+    border-radius: var(--ts-border-radius);
+}
+.style-button-icon .processing.subscribe-email button:after {
+	opacity: 0;
+	visibility: hidden;
+}
+.style-button-icon .subscribe-email button:after {
+	font-family: 'icomoon';
+	font-weight: normal;
+	font-style: normal;
+	letter-spacing: 0;
+	content: '\e974';
+	width: 50px;
+    line-height: 42px;
+    display: inline-block;
+    font-size: 18px;
+    background: transparent;
+}
+.style-button-icon .subscribe-email button:hover {
+	color: var(--ts-primary-color);
+}
+
+/*-------------------------------------------------------------------------------------------------------------------
+	10. SHORTCODE PRODUCTS CATEGORIES LIST
+---------------------------------------------------------------------------------------------------------------------*/
+.ts-list-of-product-categories-wrapper {
+	display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+	gap: 30px;
+}
+.ts-list-of-product-categories-wrapper .list-categories {
+	flex: 1;
+	align-items: flex-start;
+	gap: 20px 15px;
+	margin: 0;
+}
+.ts-list-of-product-categories-wrapper .list-categories .heading-title {
+	font-size: var(--ts-body-font-size);
+	line-height: 1.4;
+	margin: 0;
+}
+.ts-list-of-product-categories-wrapper .list-categories ul {
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: 14px;
+}
+.ts-list-of-product-categories-wrapper .list-categories ul li a {
+	color: inherit;
+	text-decoration: none;
+}
+.ts-list-of-product-categories-wrapper .list-categories ul li:hover,
+.ts-list-of-product-categories-wrapper .list-categories ul li a:not(.shop-more-button):hover {
+	color: var(--ts-primary-color);
+}
+.ts-list-of-product-categories-wrapper .list-categories ul li {
+	list-style: none;
+	padding: 0;
+}
+.ts-list-of-product-categories-wrapper .list-categories ul li.shop-more {
+	margin-top: 5px;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------
+	11. SHORTCODE PRODUCTS DEALS
+---------------------------------------------------------------------------------------------------------------------*/
+.availability-status {
+	display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+	margin-bottom: 7px;
+	font-size: 12px;
+}
+.availability-bar .progress-bar {
+	display: block;
+	width: 100%;
+	height: 6px;
+	background-color: #e6e6e6;
+	position: relative;
+	border-radius: 10px;
+	overflow: hidden;
+}
+.availability-bar .progress-bar > span {
+	display: inline-block;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0; /* rtl */
+	background-color: var(--ts-text-color);
+	border-radius: 10px;
+}
+.availability-status > span > span:first-child {
+	color: var(--ts-gray-color);
+}
+/*** Shortcode Deals ***/
+.woocommerce div.summary .counter-wrapper,
+.ts-product-deals-wrapper .counter-wrapper {
+	align-items: center;
+	justify-content: flex-start;
+    gap: 5px;
+}
+.woocommerce div.summary .counter-wrapper > div,
+.ts-product-deals-wrapper .counter-wrapper > div {
+	min-width: 0;
+}
+.ts-product-deals-wrapper .counter-wrapper > div,
+.woocommerce div.summary .counter-wrapper > span,
+.ts-product-deals-wrapper .counter-wrapper > span {
+	font-size: 16px;
+}
+.woocommerce div.summary .counter-wrapper > div {
+	font-size: 14px;
+}
+.woocommerce div.summary .counter-wrapper > span,
+.ts-product-deals-wrapper .counter-wrapper > span {
+	color: var(--ts-primary-color);
+}
+.woocommerce div.summary .counter-wrapper .number-wrapper,
+.ts-product-deals-wrapper .counter-wrapper .number-wrapper {
+	min-width: 45px;
+	min-height: 30px;
+	padding: 0 5px;
+	background: var(--ts-primary-color);
+	color: var(--ts-text-in-primary-color);
+	border-radius: var(--ts-border-radius);
+}
+.woocommerce div.summary .counter-wrapper .ref-wrapper,
+.ts-product-deals-wrapper .counter-wrapper .ref-wrapper {
+	display: none;
+}
+.ts-product-deals-wrapper .shortcode-heading-wrapper .counter-wrapper .number-wrapper {
+	min-width: 34px;
+	min-height: 34px;
+	border-radius: 50%;
+	background: var(--ts-text-color);
+    color: var(--ts-main-bg);
+}
+.ts-product-deals-wrapper .shortcode-heading-wrapper .counter-wrapper > span {
+	color: var(--ts-text-color);
+}
+
+/*-------------------------------------------------------------------------------------------------------------------
+	12. SHORTCODE COUPONS
+---------------------------------------------------------------------------------------------------------------------*/
+.coupon-code {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 7px 15px 5px;
+    line-height: 1.2;
+	font-size: 0.86em;
+	font-weight: bold;
+	position: relative;
+	transition: 250ms ease 0s;
+	border: 1px dashed;
+	border-radius: var(--ts-border-radius);
+	text-transform: uppercase;
+}
+.coupon-code:hover {
+	cursor: pointer; 
+	border-style: solid;
+}
+.coupon-code.loading .copy-message {
+	display: block;
+	transition: 150ms ease 0s;
+}
+.coupon-code .copy-message {
+	content: "";
+	display: inline-block;
+	vertical-align: middle;
+	display: none;
+}
+.coupon-code.loading > span:first-child {display: none;}
+
+.coupon-code.style-underline {
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+}
+.coupon-code.style-underline:after {
+	content: '';
+	width: 100%;
+	height: 1px;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	border-bottom: 1px solid;
+	transition: 250ms ease;
+}
+.coupon-code.style-underline:hover:after {
+	border-bottom: 1px dashed;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------
+	13. SHORTCODE SOCIAL
+---------------------------------------------------------------------------------------------------------------------*/
+.ts-social-icons-elementor-widget .list-items {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 5px;
+}
+.ts-social-icons-elementor-widget .elementor-icon.elementor-social-icon {
+	width: auto;
+    height: auto;
+    font-size: inherit;
+    line-height: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.ts-social-icons-elementor-widget .elementor-social-icon:hover {
+	opacity: 1; 
+	color: var(--ts-primary-color);
+	text-decoration: none;
+}
+.ts-social-icons-elementor-widget .elementor-icon.elementor-social-icon i,
+.ts-social-icons-elementor-widget .elementor-icon.elementor-social-icon svg {
+	width: 1.8em;
+	height: 1.8em;
+	line-height: 1.8em;
+	display: inline-block;
+    box-sizing: content-box;
+	border-radius: 50%;
+	color: inherit;
+}
+.ts-social-icons-elementor-widget .elementor-icon.elementor-social-icon i:before {
+	position: static;
+	transform: none;
+	line-height: 1;
+}
+/**/
+.ts-social-icons-elementor-widget.style-vertical .list-items > span {width: 100%;}
+.ts-social-icons-elementor-widget.style-vertical .elementor-icon.elementor-social-icon {justify-content: flex-start;}
+
+/*-------------------------------------------------------------------------------------------------------------------
+	14. SHORTCODE FILTER BY TAXONOMIES
+---------------------------------------------------------------------------------------------------------------------*/
+.ts-product-filter-by-taxonomies .form-content select {max-width: 100%;}
+.ts-product-filter-by-taxonomies .form-content .button {text-transform: uppercase;line-height: 24px;}
+.style--row .ts-product-filter-by-taxonomies .form-content form > * {flex: 1 0 calc(20% - 20px);}
+.ts-product-filter-by-taxonomies .form-content form {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 20px;
+	position: relative;
+}
