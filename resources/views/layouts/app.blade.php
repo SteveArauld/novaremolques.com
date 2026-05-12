@@ -12,17 +12,14 @@
 
 <script>
     window.cartTranslations = {
-        // Notifications
         cartAdded: '{{ __("cart.translations.cart_added") }}',
         cartRemoved: '{{ __("cart.translations.cart_removed") }}',
         cartEmpty: '{{ __("cart.translations.cart_empty") }}',
         cartUpdated: '{{ __("cart.translations.cart_updated") }}',
         
-        // États de chargement
         loading: '{{ __("cart.translations.loading") }}',
         loadError: '{{ __("cart.translations.load_error") }}',
         
-        // Actions
         viewDetails: '{{ __("cart.translations.view_details") }}',
         addToCart: '{{ __("cart.translations.add_to_cart") }}',
         addedToCart: '{{ __("cart.translations.added_to_cart") }}',
@@ -31,19 +28,16 @@
         checkout: '{{ __("cart.translations.checkout") }}',
         continueShopping: '{{ __("cart.translations.continue_shopping") }}',
         
-        // Produits
         soldRecently: '{{ __("cart.translations.sold_recently") }}',
         noProducts: '{{ __("cart.translations.no_products") }}',
         seeAllProducts: '{{ __("cart.translations.see_all_products") }}',
         
-        // Quantité et prix
         qty: '{{ __("cart.translations.qty") }}',
         price: '{{ __("cart.translations.price") }}',
         unitPrice: '{{ __("cart.translations.unit_price") }}',
         subtotal: '{{ __("cart.translations.subtotal") }}',
         total: '{{ __("cart.translations.total") }}',
         
-        // Tri et pagination
         sortDefault: '{{ __("cart.translations.sort_default") }}',
         sortNewest: '{{ __("cart.translations.sort_newest") }}',
         sortPriceAsc: '{{ __("cart.translations.sort_price_asc") }}',
@@ -57,7 +51,6 @@
         next: '{{ __("cart.translations.next") }}',
         previous: '{{ __("cart.translations.previous") }}',
         
-        // Labels
         promo: '{{ __("cart.translations.promo") }}',
         sku: '{{ __("cart.translations.sku") }}',
         categories: '{{ __("cart.translations.categories") }}',
@@ -65,7 +58,6 @@
         outOfStock: '{{ __("cart.translations.out_of_stock") }}',
         close: '{{ __("cart.translations.close") }}',
         
-        // Wishlist et comparateur
         wishlist: '{{ __("cart.translations.wishlist") }}',
         addToWishlist: '{{ __("cart.translations.add_to_wishlist") }}',
         removeFromWishlist: '{{ __("cart.translations.remove_from_wishlist") }}',
@@ -73,17 +65,14 @@
         addToCompare: '{{ __("cart.translations.add_to_compare") }}',
         removeFromCompare: '{{ __("cart.translations.remove_from_compare") }}',
         
-        // Erreurs
         quantityError: '{{ __("cart.translations.quantity_error") }}',
         stockError: '{{ __("cart.translations.stock_error") }}',
         maxQuantity: '{{ __("cart.translations.max_quantity") }}',
         
-        // Livraison
         freeShipping: '{{ __("cart.translations.free_shipping") }}',
         shipping: '{{ __("cart.translations.shipping") }}',
         tax: '{{ __("cart.translations.tax") }}',
         
-        // Panier
         emptyCartTitle: '{{ __("cart.translations.empty_cart_title") }}',
         emptyCartText: '{{ __("cart.translations.empty_cart_text") }}',
         cartSummary: '{{ __("cart.translations.cart_summary") }}',
@@ -187,14 +176,14 @@
 
     <meta name="generator"
           content="Powered by Slider Revolution 6.7.38 - responsive, Mobile-Friendly Slider Plugin for WordPress with comfortable drag and drop interface."/>
-    <link rel="icon" class="logo" href="{{ asset('assets/images/logo.png') }}"
+    <link rel="icon" class="logo" href="{{ asset('assets/images/logo-dark.png') }}"
           sizes="32x32"/>
-    <link rel="icon" class="logo" href="{{ asset('assets/images/logo.png') }}"
+    <link rel="icon" class="logo" href="{{ asset('assets/images/logo-dark.png') }}"
           sizes="192x192"/>
     <link rel="apple-touch-icon"
-          class="logo" href="{{ asset('assets/images/logo.png') }}"/>
+          class="logo" href="{{ asset('assets/images/logo-dark.png') }}"/>
     <meta name="msapplication-TileImage"
-          content="{{ asset('assets/images/logo.png') }}"/>
+          content="{{ asset('assets/images/logo-dark.png') }}"/>
 <script src="{{ asset('assets/js/sweetalert2@11.js') }}"></script>
 
     <link rel='stylesheet' 

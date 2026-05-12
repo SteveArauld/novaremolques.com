@@ -18,7 +18,7 @@
                     </div>
                     <div class="elementor-element elementor-element-3ea875a elementor-widget elementor-widget-text-editor"
                          data-id="3ea875a" data-element_type="widget" data-widget_type="text-editor.default">
-                        <p>+34 628 34 39 28</p>
+                        <p>+34 657 94 2736</p>
                     </div>
                     <div class="elementor-element elementor-element-014b340 elementor-widget elementor-widget-text-editor"
                          data-id="014b340" data-element_type="widget" data-widget_type="text-editor.default">
@@ -395,7 +395,7 @@
     <div class="chaty-channel-list" id="csaas-channels-0">
         <div class="chaty-channel Whatsapp-channel-link" id="Whatsapp-0-channel" data-id="Whatsapp-0" data-widget="0"
              data-channel="Whatsapp">
-             <a href="https://wa.me/+393508724295?text={{ urlencode(__('footer.whatsapp.message')) }}"
+             <a href="https://wa.me/+34657942736?text={{ urlencode(__('footer.whatsapp.message')) }}"
              target="_blank"
              rel="nofollow noopener"
              aria-label="Whatsapp"

@@ -104,7 +104,7 @@
                                          data-widget_type="text-editor.default">
                                         <p>{{ __('contact.email') }} <strong data-start="1196" data-end="1231"><a
                                                         class="decorated-link cursor-pointer" rel="noopener"
-                                                        data-start="1198" data-end="1229">contact@portaboxsolutions.com</a></strong>
+                                                        data-start="1198" data-end="1229">contact@novaremolques.com</a></strong>
                                         </p>
                                     </div>
                                 </div>

@@ -540,13 +540,13 @@ document.addEventListener('DOMContentLoaded', function() {
         window.slideAutoplayTimer = null;
 
         var config = {};
-        config.typingSpeed = 120;
-        config.letterDuration = 60000 / (120 * 5);
+        config.typingSpeed = 10;
+        config.letterDuration = 3000 / (120 * 5);
         config.typedPauseEnd = 1500;
         config.typedPauseStart = 300;
-        config.titleChangeInterval = 10000;
-        config.slideMinDuration = 5000;
-        config.slideMaxDuration = 10000;
+        config.titleChangeInterval = 3000;
+        config.slideMinDuration = 15000;
+        config.slideMaxDuration = 15000;
 
         function slideRandomDuration() {
             return Math.floor(Math.random() * (config.slideMaxDuration - config.slideMinDuration + 1) + config.slideMinDuration);

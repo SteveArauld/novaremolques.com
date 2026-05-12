@@ -47,11 +47,13 @@ class ProductSeeder extends Seeder
                     'es' => $productData['nom']['es'],
                     'fr' => $productData['nom']['fr'],
                     'it' => $productData['nom']['it'],
+                    'pt' => $productData['nom']['pt'],
                 ],
                 'description' => [
                     'es' => $productData['description']['es'],
                     'fr' => $productData['description']['fr'],
                     'it' => $productData['description']['it'],
+                    'pt' => $productData['description']['pt'],
                 ],
                 'prix_original' => $productData['prix_original'] ?? null,
                 'prix_actuel' => $productData['prix_actuel'] ?? null,
@@ -79,6 +81,7 @@ class ProductSeeder extends Seeder
                             'es' => $categoryData['es'],
                             'fr' => $categoryData['fr'],
                             'it' => $categoryData['it'],
+                            'pt' => $categoryData['pt'],
                         ]
                     ]
                 );

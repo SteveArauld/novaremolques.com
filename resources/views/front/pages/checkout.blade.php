@@ -38,12 +38,18 @@
 
 @push('scripts')
 <script>
+    window.checkoutData = {
+        countries: @json($countries)
+    };
+</script>
+<script>
     (function() {
         console.log('💳 Initialisation de la page checkout...');
 
         class CheckoutPage {
             constructor() {
                 this.cart = this.loadCart();
+                this.countries = window.checkoutData?.countries || [];
                 this.translations = {
                     empty_title: '{{ __("checkout.empty_title") }}',
                     empty_text: '{{ __("checkout.empty_text") }}',
@@ -98,7 +104,8 @@
                     coupon_applied: '{{ __("checkout.coupon_applied") }}',
                     payment_transfer: '{{ __("checkout.payment_transfer") }}',
                     payment_card: '{{ __("checkout.payment_card") }}',
-                    payment_paypal: '{{ __("checkout.payment_paypal") }}'
+                    payment_paypal: '{{ __("checkout.payment_paypal") }}',
+                    country_select: '{{ __("checkout.country_select") }}'
                 };
                 this.orderData = {
                     billing: {},
@@ -302,6 +309,10 @@
                 const tax = this.getTax();
                 const total = this.getTotal();
 
+                const countryOptions = this.countries.map(country => 
+                    `<option value="${country.code}">${country.name}</option>`
+                ).join('');
+
                 let productsHTML = '';
                 this.cart.forEach(item => {
                     productsHTML += `
@@ -336,33 +347,33 @@
                                 </div>
                             </div>
                             
-                            <div class="form-group">
-                                <label>${t.company} ${t.optional}</label>
-                                <input type="text" id="billing_company" placeholder="${t.company_placeholder}">
+                            <div class="form-row"> 
+                                <div class="form-group">
+                                    <label>${t.company} ${t.optional}</label>
+                                    <input type="text" id="billing_company" placeholder="${t.company_placeholder}">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>${t.country} <span class="required">${t.required}</span></label>
+                                    <select id="billing_country" required>
+                                        <option value="">${t.country_select}</option>
+                                        ${countryOptions}
+                                        </select>
+                                </div>
                             </div>
-                            
-                            <div class="form-group">
-                                <label>${t.country} <span class="required">${t.required}</span></label>
-                                <select id="billing_country" required>
-                                    <option value="FR">France</option>
-                                    <option value="BE">Belgique</option>
-                                    <option value="CH">Suisse</option>
-                                    <option value="ES">Espagne</option>
-                                    <option value="IT">Italie</option>
-                                    <option value="DE">Allemagne</option>
-                                    <option value="PT">Portugal</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>${t.address} <span class="required">${t.required}</span></label>
-                                <input type="text" id="billing_address_1" placeholder="${t.address_placeholder}" required>
-                                <span class="error-message">${t.fill_required}</span>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>${t.address2} ${t.optional}</label>
-                                <input type="text" id="billing_address_2" placeholder="${t.address2_placeholder}">
+
+
+                            <div class="form-row"> 
+                                <div class="form-group">
+                                    <label>${t.address} <span class="required">${t.required}</span></label>
+                                    <input type="text" id="billing_address_1" placeholder="${t.address_placeholder}" required>
+                                    <span class="error-message">${t.fill_required}</span>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>${t.address2} ${t.optional}</label>
+                                    <input type="text" id="billing_address_2" placeholder="${t.address2_placeholder}">
+                                </div>
                             </div>
                             
                             <div class="form-row">
@@ -408,19 +419,22 @@
                                         <input type="text" id="shipping_last_name" placeholder="${t.last_name_placeholder}">
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>${t.country}</label>
-                                    <select id="shipping_country">
-                                        <option value="FR">France</option>
-                                        <option value="BE">Belgique</option>
-                                        <option value="CH">Suisse</option>
-                                        <option value="ES">Espagne</option>
-                                    </select>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>${t.country}</label>
+                                        <select id="shipping_country">
+                                            <option value="">${t.country_select}</option>
+                                             ${countryOptions}
+                                        </select>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>${t.address}</label>
+                                        <input type="text" id="shipping_address_1" placeholder="${t.address_placeholder}">
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>${t.address}</label>
-                                    <input type="text" id="shipping_address_1" placeholder="${t.address_placeholder}">
-                                </div>
+
+
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label>${t.city}</label>

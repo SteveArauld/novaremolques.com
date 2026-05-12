@@ -14,7 +14,6 @@ class Product extends Model
         'prix_original', 'prix_actuel', 'sku'
     ];
 
-    // Déclare quels champs sont traduisibles
     public array $translatable = ['name', 'description'];
 
     public function images()
@@ -27,7 +26,6 @@ class Product extends Model
         return $this->belongsToMany(Category::class);
     }
 
-    // AJOUTEZ CECI : Accesseur pour obtenir la première catégorie
     public function getCategoryAttribute()
     {
         return $this->categories()->first();

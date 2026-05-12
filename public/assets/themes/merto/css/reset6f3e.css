@@ -346,7 +346,7 @@ body .pswp__button--arrow--left,body .pswp__button--arrow--right {background: no
  /*** Default ***/
 .screen-reader-text {clip: rect(1px, 1px, 1px, 1px);position: absolute !important;height: 1px;width: 1px;overflow: hidden;}
 .screen-reader-text:focus {background-color: #f1f1f1;border-radius: 3px;box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.6);clip: auto !important;color: #21759b;display: block;font-size: 0.8rem;font-weight: bold;height: auto;line-height: normal;padding: 15px 23px 14px;text-decoration: none;top: 5px;width: auto;z-index: 99990;left: 5px; /* rtl */}
-img {border: 0;vertical-align: top;margin: 0;max-width: 100%;height: auto;transform: translateZ(0);}
+img {border: 0;vertical-align: top;margin: 0;height: auto;transform: translateZ(0);}
 a {cursor: pointer;background: transparent;transition: 150ms ease 0s;text-decoration: none;}
 a:focus {text-decoration: none;}
 a:focus, input[type="submit"] {outline: none!important;}
