@@ -44,7 +44,6 @@
 </script>
 <script>
     (function() {
-        console.log('💳 Initialisation de la page checkout...');
 
         class CheckoutPage {
             constructor() {
@@ -552,7 +551,6 @@
 
             init() {
                 this.render();
-                console.log('✅ Page checkout initialisée');
             }
         }
 
