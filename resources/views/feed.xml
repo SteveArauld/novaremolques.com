@@ -1,0 +1,32 @@
+{!! '<'.'?xml version="1.0" encoding="UTF-8"?>' !!}
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>{{ config('app.name') }} - Flux produits</title>
+        <link>{{ url('/') }}</link>
+        <description>Dernières tondeuses et produits</description>
+        <language>fr</language>
+        <lastBuildDate>{{ now()->toRssString() }}</lastBuildDate>
+        <atom:link href="{{ url('/feed.xml') }}" rel="self" type="application/rss+xml"/>
+
+        @foreach($dernieresTondeuses as $product)
+        <item>
+            <title>{{ $product->name }}</title>
+            <link>{{ url('/product/' . $product->slug) }}</link>
+            <guid isPermaLink="true">{{ url('/product/' . $product->id) }}</guid>
+            <description>
+                <![CDATA[
+                @if($product->images->isNotEmpty())
+                <img src="{{ asset('storage/' . $product->images->first()->path) }}" alt="{{ $product->name }}" />
+                @endif
+                <p>{{ $product->description }}</p>
+                <p>Prix: {{ number_format($product->price, 2, ',', ' ') }} €</p>
+                ]]>
+            </description>
+            @if($product->categories->isNotEmpty())
+            <category>{{ $product->categories->first()->name }}</category>
+            @endif
+            <pubDate>{{ $product->created_at->toRssString() }}</pubDate>
+        </item>
+        @endforeach
+    </channel>
+</rss>

@@ -47,3 +47,6 @@ Route::get('/api/quickview/{id}', [App\Http\Controllers\HomeController::class, '
     ->name('api.quickview');
 
 Route::post('/checkout/process', [CheckoutController::class, 'processOrder'])->name('checkout.process');
+
+
+Route::get('/feed.xml',[HomeController::class, 'xml']);

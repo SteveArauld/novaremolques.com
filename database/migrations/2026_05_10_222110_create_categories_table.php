@@ -12,7 +12,7 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->json('name');  // Spatie gère le JSON automatiquement
+            $table->json('name');  
             $table->string('slug')->unique();
             $table->timestamps();
         });

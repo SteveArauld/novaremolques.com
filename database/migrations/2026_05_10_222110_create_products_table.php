@@ -13,10 +13,10 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('url')->unique();
-            $table->string('slug')->unique();  // UN SEUL slug !
-            $table->string('sku')->nullable();  // UN SEUL slug !
-            $table->json('name');              // Spatie gère le JSON automatiquement
-            $table->json('description');       // Spatie gère le JSON automatiquement
+            $table->string('slug')->unique();  
+            $table->string('sku')->nullable();  
+            $table->json('name');              
+            $table->json('description');       
             $table->decimal('prix_original', 10, 2)->nullable();
             $table->decimal('prix_actuel', 10, 2)->nullable();
             $table->timestamps();

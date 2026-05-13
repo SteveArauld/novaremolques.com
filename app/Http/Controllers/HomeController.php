@@ -34,9 +34,88 @@ class HomeController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
-            //dd($dernieresTondeuses);
+        //dd($dernieresTondeuses);
 
         return view('front.home', compact('dernieresTondeuses', 'dernieresRemorques'));
+    }
+    public function xml()
+    {
+        // Récupérer les produits avec leurs relations, triés par date de création
+        $products = Product::with(['categories', 'images'])
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        // Créer le flux Google Merchant
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $xml .= '<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">' . "\n";
+        $xml .= '  <channel>' . "\n";
+        $xml .= '    <title>' . htmlspecialchars(config('app.name')) . '</title>' . "\n";
+        $xml .= '    <link>' . url('/') . '</link>' . "\n";
+        $xml .= '    <description>Flux produits Google Merchant</description>' . "\n";
+
+        foreach ($products as $product) {
+            // Récupérer les noms et descriptions en français
+            $name = is_array($product->name) ? ($product->name['fr'] ?? '') : $product->name;
+            $description = is_array($product->description) ? ($product->description['fr'] ?? '') : $product->description;
+
+            // Prix
+            $price = $product->prix_actuel ?? $product->prix_original ?? '0';
+            $originalPrice = $product->prix_original;
+
+            // Catégories
+            $categories = $product->categories->map(function ($cat) {
+                return is_array($cat->name) ? ($cat->name['fr'] ?? '') : $cat->name;
+            })->filter()->implode(' > ');
+
+            $xml .= '    <item>' . "\n";
+            $xml .= '      <g:id>' . $product->sku . '</g:id>' . "\n";
+            $xml .= '      <g:title>' . htmlspecialchars($name) . '</g:title>' . "\n";
+            $xml .= '      <g:description>' . htmlspecialchars(strip_tags($description)) . '</g:description>' . "\n";
+            $xml .= '      <g:link>' . url($product->slug) . '</g:link>' . "\n";
+
+            // Images
+            if ($product->images->isNotEmpty()) {
+                $xml .= '      <g:image_link>' . url($product->images->first()->fichier) . '</g:image_link>' . "\n";
+
+                // Images supplémentaires (optionnel)
+                if ($product->images->count() > 1) {
+                    foreach ($product->images->slice(1) as $image) {
+                        $xml .= '      <g:additional_image_link>' . url($image->fichier). '</g:additional_image_link>' . "\n";
+                    }
+                }
+            }
+
+            // Prix
+            $xml .= '      <g:price>' . number_format($price, 2, '.', '') . ' EUR</g:price>' . "\n";
+
+            // Prix original (si différent du prix actuel)
+            if ($originalPrice && $originalPrice != $price) {
+                $xml .= '      <g:sale_price>' . number_format($price, 2, '.', '') . ' EUR</g:sale_price>' . "\n";
+                $xml .= '      <g:price>' . number_format($originalPrice, 2, '.', '') . ' EUR</g:price>' . "\n";
+            }
+
+            // Disponibilité
+            $xml .= '      <g:availability>in stock</g:availability>' . "\n";
+
+            // Condition
+            $xml .= '      <g:condition>new</g:condition>' . "\n";
+
+            // Catégorie Google (à adapter selon vos produits)
+            if ($categories) {
+                $xml .= '      <g:product_type>' . htmlspecialchars($categories) . '</g:product_type>' . "\n";
+            }
+
+            // Marque (optionnel - à adapter si vous avez cette info)
+            // $xml .= '      <g:brand>' . $brand . '</g:brand>' . "\n";
+
+            $xml .= '    </item>' . "\n";
+        }
+
+        $xml .= '  </channel>' . "\n";
+        $xml .= '</rss>';
+
+       return response($xml, 200)
+        ->header('Content-Type', 'application/rss+xml');
     }
 
     public function showProduct($slug, Request $request)
@@ -289,7 +368,7 @@ class HomeController extends Controller
     {
         $countries = $this->getCountriesList();
 
-        return view('front.pages.checkout',compact('countries'));
+        return view('front.pages.checkout', compact('countries'));
     }
 
     public function paymentPolicy()
@@ -587,7 +666,7 @@ class HomeController extends Controller
 
                 return [
                     'url' => asset($path),
-                    'thumb' => asset($path), 
+                    'thumb' => asset($path),
                     'alt' => $image->alt ?? ''
                 ];
             }),
