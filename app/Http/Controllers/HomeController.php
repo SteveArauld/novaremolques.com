@@ -90,8 +90,8 @@ class HomeController extends Controller
             $xml .= '      <g:price>' . number_format($price, 2, '.', '') . ' EUR</g:price>' . "\n";
 
             // Prix original (si différent du prix actuel)
-           if ($originalPrice && $originalPrice != $price) {
-                $xml .= '      <g:sale_price>' . number_format($originalPrice, 2, '.', '') . ' EUR</g:price>' . "\n";
+            if ($originalPrice && $originalPrice != $price) {
+                $xml .= '      <g:sale_price>' . number_format($originalPrice, 2, '.', '') . ' EUR</g:sale_price>' . "\n";
             }
 
             // Disponibilité
