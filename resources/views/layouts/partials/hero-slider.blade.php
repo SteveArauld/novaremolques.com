@@ -476,7 +476,7 @@
 
     @media (max-width: 480px) {
         .hero-slide {
-            min-height: 70vh;
+            min-height: 0vh;
         }
 
         .hero-slide-content {
