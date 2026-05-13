@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 
 
 class HomeController extends Controller
@@ -68,9 +69,9 @@ class HomeController extends Controller
             })->filter()->implode(' > ');
 
             $xml .= '    <item>' . "\n";
-            $xml .= '      <g:id>' . $product->sku . '</g:id>' . "\n";
+            $xml .= '      <g:id>' . $product->id . '</g:id>' . "\n";
             $xml .= '      <g:title>' . htmlspecialchars($name) . '</g:title>' . "\n";
-            $xml .= '      <g:description>' . htmlspecialchars(strip_tags($description)) . '</g:description>' . "\n";
+            $xml .= '      <g:description>' . htmlspecialchars(Str::limit(strip_tags($description),1000)) . '</g:description>' . "\n";
             $xml .= '      <g:link>' . url($product->slug) . '</g:link>' . "\n";
 
             // Images
@@ -89,9 +90,8 @@ class HomeController extends Controller
             $xml .= '      <g:price>' . number_format($price, 2, '.', '') . ' EUR</g:price>' . "\n";
 
             // Prix original (si différent du prix actuel)
-            if ($originalPrice && $originalPrice != $price) {
-                $xml .= '      <g:sale_price>' . number_format($price, 2, '.', '') . ' EUR</g:sale_price>' . "\n";
-                $xml .= '      <g:price>' . number_format($originalPrice, 2, '.', '') . ' EUR</g:price>' . "\n";
+           if ($originalPrice && $originalPrice != $price) {
+                $xml .= '      <g:sale_price>' . number_format($originalPrice, 2, '.', '') . ' EUR</g:price>' . "\n";
             }
 
             // Disponibilité
