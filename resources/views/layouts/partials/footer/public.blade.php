@@ -22,7 +22,7 @@
                     </div>
                     <div class="elementor-element elementor-element-014b340 elementor-widget elementor-widget-text-editor"
                          data-id="014b340" data-element_type="widget" data-widget_type="text-editor.default">
-                        <p>info@novaremolques.com</p>
+                        <p>contacto@novaremolques.com</p>
                     </div>
                 </div>
                 <div class="elementor-element elementor-element-510ca63 e-con-full e-flex e-con e-child"

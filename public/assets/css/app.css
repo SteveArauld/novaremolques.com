@@ -596,7 +596,7 @@
  .cafe-canvas-cart-content {
      position: fixed;
      top: 0;
-     right: -400px;
+     right: -600px;
      width: 380px;
      max-width: 90vw;
      height: 100%;

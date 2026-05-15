@@ -174,7 +174,7 @@ class HomeController extends Controller
             ];
 
             Mail::send('emails.product-inquiry', $details, function ($message) use ($details) {
-                $message->to(config('mail.admin_address', 'contact@novaremolques.com'))
+                $message->to(config('mail.admin_address', 'contacto@novaremolques.com'))
                     ->subject(__('email.inquiry_admin_subject', ['product' => $details['product_name']]))
                     ->from(config('mail.from.address'), config('mail.from.name'))
                     ->replyTo($details['email'], $details['name']);
