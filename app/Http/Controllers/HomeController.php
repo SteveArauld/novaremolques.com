@@ -39,84 +39,101 @@ class HomeController extends Controller
 
         return view('front.home', compact('dernieresTondeuses', 'dernieresRemorques'));
     }
-    public function xml()
-    {
-        // Récupérer les produits avec leurs relations, triés par date de création
-        $products = Product::with(['categories', 'images'])
-            ->orderBy('created_at', 'asc')
-            ->get();
+public function xml()
+{
+    // Récupérer les produits avec leurs relations, triés par date de création
+    $products = Product::with(['categories', 'images'])
+        ->orderBy('created_at', 'asc')
+        ->get();
 
-        // Créer le flux Google Merchant
-        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $xml .= '<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">' . "\n";
-        $xml .= '  <channel>' . "\n";
-        $xml .= '    <title>' . htmlspecialchars(config('app.name')) . '</title>' . "\n";
-        $xml .= '    <link>' . url('/') . '</link>' . "\n";
-        $xml .= '    <description>Flux produits Google Merchant</description>' . "\n";
+    // Créer le flux Google Merchant
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+    $xml .= '<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">' . "\n";
+    $xml .= '  <channel>' . "\n";
+    $xml .= '    <title>' . htmlspecialchars(config('app.name')) . '</title>' . "\n";
+    $xml .= '    <link>' . url('/') . '</link>' . "\n";
+    $xml .= '    <description>Flux productos Google Merchant</description>' . "\n";
+    $xml .= '    <language>es</language>' . "\n"; // Langue espagnole uniquement
 
-        foreach ($products as $product) {
-            // Récupérer les noms et descriptions en français
-            $name = is_array($product->name) ? ($product->name['fr'] ?? '') : $product->name;
-            $description = is_array($product->description) ? ($product->description['fr'] ?? '') : $product->description;
+    foreach ($products as $product) {
+        // Récupérer les noms et descriptions UNIQUEMENT en espagnol
+        $name = is_array($product->name) ? ($product->name['es'] ?? '') : $product->name;
+        $description = is_array($product->description) ? ($product->description['es'] ?? '') : $product->description;
 
-            // Prix
-            $price = $product->prix_actuel ?? $product->prix_original ?? '0';
-            $originalPrice = $product->prix_original;
+        // ✅ CORRECTION : Conversion sécurisée des prix en float
+        $price = floatval($product->prix_actuel ?? $product->prix_original ?? 0);
+        $originalPrice = floatval($product->prix_original ?? 0);
 
-            // Catégories
-            $categories = $product->categories->map(function ($cat) {
-                return is_array($cat->name) ? ($cat->name['fr'] ?? '') : $cat->name;
-            })->filter()->implode(' > ');
+        // Catégories UNIQUEMENT en espagnol
+        $categories = $product->categories->map(function ($cat) {
+            return is_array($cat->name) ? ($cat->name['es'] ?? '') : $cat->name;
+        })->filter()->implode(' > ');
 
-            $xml .= '    <item>' . "\n";
-            $xml .= '      <g:id>' . $product->id . '</g:id>' . "\n";
-            $xml .= '      <g:title>' . htmlspecialchars($name) . '</g:title>' . "\n";
-            $xml .= '      <g:description>' . htmlspecialchars(Str::limit(strip_tags($description),1000)) . '</g:description>' . "\n";
-            $xml .= '      <g:link>' . url($product->slug) . '</g:link>' . "\n";
+        $xml .= '    <item>' . "\n";
+        $xml .= '      <g:id>' . $product->id . '</g:id>' . "\n";
+        $xml .= '      <g:title>' . htmlspecialchars($name) . '</g:title>' . "\n";
+        $xml .= '      <g:description>' . htmlspecialchars(Str::limit(strip_tags($description), 1000)) . '</g:description>' . "\n";
+        $xml .= '      <g:link>' . url($product->slug) . '</g:link>' . "\n";
 
-            // Images
-            if ($product->images->isNotEmpty()) {
-                $xml .= '      <g:image_link>' . url($product->images->first()->fichier) . '</g:image_link>' . "\n";
+        // Images
+        if ($product->images->isNotEmpty()) {
+            $xml .= '      <g:image_link>' . url($product->images->first()->fichier) . '</g:image_link>' . "\n";
 
-                // Images supplémentaires (optionnel)
-                if ($product->images->count() > 1) {
-                    foreach ($product->images->slice(1) as $image) {
-                        $xml .= '      <g:additional_image_link>' . url($image->fichier). '</g:additional_image_link>' . "\n";
-                    }
+            // Images supplémentaires (optionnel)
+            if ($product->images->count() > 1) {
+                foreach ($product->images->slice(1) as $image) {
+                    $xml .= '      <g:additional_image_link>' . url($image->fichier) . '</g:additional_image_link>' . "\n";
                 }
             }
-
-            // Prix
-            $xml .= '      <g:price>' . number_format($price, 2, '.', '') . ' EUR</g:price>' . "\n";
-
-            // Prix original (si différent du prix actuel)
-            if ($originalPrice && $originalPrice != $price) {
-                $xml .= '      <g:sale_price>' . number_format($originalPrice, 2, '.', '') . ' EUR</g:sale_price>' . "\n";
-            }
-
-            // Disponibilité
-            $xml .= '      <g:availability>in stock</g:availability>' . "\n";
-
-            // Condition
-            $xml .= '      <g:condition>new</g:condition>' . "\n";
-
-            // Catégorie Google (à adapter selon vos produits)
-            if ($categories) {
-                $xml .= '      <g:product_type>' . htmlspecialchars($categories) . '</g:product_type>' . "\n";
-            }
-
-            // Marque (optionnel - à adapter si vous avez cette info)
-            // $xml .= '      <g:brand>' . $brand . '</g:brand>' . "\n";
-
-            $xml .= '    </item>' . "\n";
         }
 
-        $xml .= '  </channel>' . "\n";
-        $xml .= '</rss>';
+        // ✅ CORRECTION : Prix avec vérification de type
+        if ($originalPrice > 0 && $originalPrice > $price && $price > 0) {
+            // Produit en promotion : prix original (barré) et prix soldé
+            $xml .= '      <g:price>' . number_format($originalPrice, 2, '.', '') . ' EUR</g:price>' . "\n";
+            $xml .= '      <g:sale_price>' . number_format($price, 2, '.', '') . ' EUR</g:sale_price>' . "\n";
+        } elseif ($price > 0) {
+            // Pas de promotion : afficher seulement le prix normal
+            $xml .= '      <g:price>' . number_format($price, 2, '.', '') . ' EUR</g:price>' . "\n";
+        }
 
-       return response($xml, 200)
-        ->header('Content-Type', 'application/rss+xml');
+        // Disponibilité
+        $xml .= '      <g:availability>in stock</g:availability>' . "\n";
+
+        // ✅ AJOUT : Informations de livraison pour l'Espagne (gratuite)
+        $xml .= '      <g:shipping>' . "\n";
+        $xml .= '        <g:country>ES</g:country>' . "\n";
+        $xml .= '        <g:service>Estándar</g:service>' . "\n";
+        $xml .= '        <g:price>0.00 EUR</g:price>' . "\n"; // Livraison gratuite
+        $xml .= '      </g:shipping>' . "\n";
+
+        // ✅ AJOUT : Informations de livraison pour le Portugal (gratuite)
+        $xml .= '      <g:shipping>' . "\n";
+        $xml .= '        <g:country>PT</g:country>' . "\n";
+        $xml .= '        <g:service>Estándar</g:service>' . "\n";
+        $xml .= '        <g:price>0.00 EUR</g:price>' . "\n"; // Livraison gratuite
+        $xml .= '      </g:shipping>' . "\n";
+
+        // Condition
+        $xml .= '      <g:condition>new</g:condition>' . "\n";
+
+        // Catégorie Google
+        if ($categories) {
+            $xml .= '      <g:product_type>' . htmlspecialchars($categories) . '</g:product_type>' . "\n";
+        }
+
+        // Marque (optionnel - à adapter si vous avez cette info)
+        // $xml .= '      <g:brand>' . $brand . '</g:brand>' . "\n";
+
+        $xml .= '    </item>' . "\n";
     }
+
+    $xml .= '  </channel>' . "\n";
+    $xml .= '</rss>';
+
+    return response($xml, 200)
+        ->header('Content-Type', 'application/rss+xml');
+}
 
     public function showProduct($slug, Request $request)
     {
