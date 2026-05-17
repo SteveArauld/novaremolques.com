@@ -73,7 +73,7 @@ public function xml()
         $xml .= '      <g:id>' . $product->id . '</g:id>' . "\n";
         $xml .= '      <g:title>' . htmlspecialchars($name) . '</g:title>' . "\n";
         $xml .= '      <g:description>' . htmlspecialchars(Str::limit(strip_tags($description), 1000)) . '</g:description>' . "\n";
-        $xml .= '      <g:link>' . url($product->slug) . '</g:link>' . "\n";
+        $xml .= '      <g:link>' . route('product.show',$product->slug) . '</g:link>' . "\n";
 
         // Images
         if ($product->images->isNotEmpty()) {
