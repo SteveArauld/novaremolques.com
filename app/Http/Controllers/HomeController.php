@@ -46,34 +46,42 @@ public function xml()
         ->orderBy('created_at', 'asc')
         ->get();
 
-    // Créer le flux Google Merchant
+    // Créer le flux Google Merchant avec déclaration XML propre
     $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
     $xml .= '<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">' . "\n";
     $xml .= '  <channel>' . "\n";
-    $xml .= '    <title>' . htmlspecialchars(config('app.name')) . '</title>' . "\n";
+    $xml .= '    <title>' . htmlspecialchars(config('app.name'), ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</title>' . "\n";
     $xml .= '    <link>' . url('/') . '</link>' . "\n";
-    $xml .= '    <description>Flux productos Google Merchant</description>' . "\n";
-    $xml .= '    <language>es</language>' . "\n"; // Langue espagnole uniquement
+    $xml .= '    <description>Flux de produtos Google Merchant</description>' . "\n";
+    $xml .= '    <language>pt</language>' . "\n"; // Langue principale : portugais
 
     foreach ($products as $product) {
-        // Récupérer les noms et descriptions UNIQUEMENT en espagnol
-        $name = is_array($product->name) ? ($product->name['es'] ?? '') : $product->name;
-        $description = is_array($product->description) ? ($product->description['es'] ?? '') : $product->description;
+        // Récupérer les noms et descriptions en PORTUGAIS d'abord, puis espagnol
+        $name = is_array($product->name) 
+            ? ($product->name['pt'] ?? $product->name['es'] ?? '') 
+            : $product->name;
+        $description = is_array($product->description) 
+            ? ($product->description['pt'] ?? $product->description['es'] ?? '') 
+            : $product->description;
 
         // ✅ CORRECTION : Conversion sécurisée des prix en float
         $price = floatval($product->prix_actuel ?? $product->prix_original ?? 0);
         $originalPrice = floatval($product->prix_original ?? 0);
 
-        // Catégories UNIQUEMENT en espagnol
+        // Catégories en PORTUGAIS d'abord, puis espagnol
         $categories = $product->categories->map(function ($cat) {
-            return is_array($cat->name) ? ($cat->name['es'] ?? '') : $cat->name;
+            return is_array($cat->name) 
+                ? ($cat->name['pt'] ?? $cat->name['es'] ?? '') 
+                : $cat->name;
         })->filter()->implode(' > ');
 
         $xml .= '    <item>' . "\n";
         $xml .= '      <g:id>' . $product->id . '</g:id>' . "\n";
-        $xml .= '      <g:title>' . htmlspecialchars($name) . '</g:title>' . "\n";
-        $xml .= '      <g:description>' . htmlspecialchars(Str::limit(strip_tags($description), 1000)) . '</g:description>' . "\n";
-        $xml .= '      <g:link>' . route('product.show',$product->slug) . '</g:link>' . "\n";
+        
+        // ✅ CORRECTION : Utiliser htmlspecialchars avec ENT_XML1 pour les caractères portugais/espagnols
+        $xml .= '      <g:title>' . htmlspecialchars($name, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:title>' . "\n";
+        $xml .= '      <g:description>' . htmlspecialchars(Str::limit(strip_tags($description), 1000), ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:description>' . "\n";
+        $xml .= '      <g:link>' . route('product.show', $product->slug) . '</g:link>' . "\n";
 
         // Images
         if ($product->images->isNotEmpty()) {
@@ -100,18 +108,18 @@ public function xml()
         // Disponibilité
         $xml .= '      <g:availability>in stock</g:availability>' . "\n";
 
-        // ✅ AJOUT : Informations de livraison pour l'Espagne (gratuite)
+        // Livraison Espagne (ES)
         $xml .= '      <g:shipping>' . "\n";
         $xml .= '        <g:country>ES</g:country>' . "\n";
         $xml .= '        <g:service>Estándar</g:service>' . "\n";
-        $xml .= '        <g:price>0.00 EUR</g:price>' . "\n"; // Livraison gratuite
+        $xml .= '        <g:price>0.00 EUR</g:price>' . "\n";
         $xml .= '      </g:shipping>' . "\n";
 
-        // ✅ AJOUT : Informations de livraison pour le Portugal (gratuite)
+        // Livraison Portugal (PT)
         $xml .= '      <g:shipping>' . "\n";
         $xml .= '        <g:country>PT</g:country>' . "\n";
-        $xml .= '        <g:service>Estándar</g:service>' . "\n";
-        $xml .= '        <g:price>0.00 EUR</g:price>' . "\n"; // Livraison gratuite
+        $xml .= '        <g:service>Padrão</g:service>' . "\n"; // ✅ Portugais
+        $xml .= '        <g:price>0.00 EUR</g:price>' . "\n";
         $xml .= '      </g:shipping>' . "\n";
 
         // Condition
@@ -119,11 +127,8 @@ public function xml()
 
         // Catégorie Google
         if ($categories) {
-            $xml .= '      <g:product_type>' . htmlspecialchars($categories) . '</g:product_type>' . "\n";
+            $xml .= '      <g:product_type>' . htmlspecialchars($categories, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:product_type>' . "\n";
         }
-
-        // Marque (optionnel - à adapter si vous avez cette info)
-        // $xml .= '      <g:brand>' . $brand . '</g:brand>' . "\n";
 
         $xml .= '    </item>' . "\n";
     }
@@ -132,7 +137,7 @@ public function xml()
     $xml .= '</rss>';
 
     return response($xml, 200)
-        ->header('Content-Type', 'application/rss+xml');
+        ->header('Content-Type', 'application/rss+xml; charset=UTF-8');
 }
 
     public function showProduct($slug, Request $request)

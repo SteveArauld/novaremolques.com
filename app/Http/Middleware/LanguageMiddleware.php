@@ -18,7 +18,7 @@ class LanguageMiddleware
         } elseif (Cookie::has('locale')) {
             $locale = Cookie::get('locale');
         } else {
-            $locale = 'es'; 
+            $locale = 'pt'; 
         }
 
         $allowedLocales = ['fr', 'pt', 'es'];
@@ -26,8 +26,8 @@ class LanguageMiddleware
             App::setLocale($locale);
             Session::put('locale', $locale);
         } else {
-            App::setLocale('es');
-            Session::put('locale', 'es');
+            App::setLocale('pt');
+            Session::put('locale', 'pt');
         }
 
         return $next($request);

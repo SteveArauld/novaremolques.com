@@ -7,7 +7,11 @@
         <div class="language-selector-wrapper">
             <div class="language-selector" id="languageSelector">
                 <button class="language-dropdown-toggle" id="languageDropdownToggle" type="button" aria-expanded="false">
-                    @if (app()->getLocale() === 'fr')
+                  
+            
+                
+                
+                @if (app()->getLocale() === 'fr')
                     <img class="flag-icon" width="25" src="{{ asset('assets/images/flags/fr.svg') }}" alt="Français">
                     <span>{{ __('header.language.french') }}</span>
 
@@ -24,24 +28,7 @@
                     </svg>
                 </button>
                 <ul class="language-dropdown-menu" id="languageDropdownMenu" style="display:none;">
-                    <li>
-                        <a class="language-dropdown-item {{ app()->getLocale() == 'fr' ? 'active' : '' }}"
-                            href="{{ route('lang.switch', 'fr') }}">
-                            <div class="language-item-content">
-                                <img class="flag-icon" width="25" src="{{ asset('assets/images/flags/fr.svg') }}" alt="Français">
-                                <span>{{ __('header.language.french') }}</span>
-                            </div>
-                            @if (app()->getLocale() == 'fr')
-                            <svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                <path d="M11.6667 3.5L5.25 9.91667L2.33333 7" stroke="#2c3e50"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            @endif
-                        </a>
-                    </li>
-
-
-                    <li>
+                   <li>
                         <a class="language-dropdown-item {{ app()->getLocale() == 'pt' ? 'active' : '' }}"
                             href="{{ route('lang.switch', 'pt') }}">
                             <div class="language-item-content">
@@ -70,7 +57,26 @@
                             </svg>
                             @endif
                         </a>
+                    </li> 
+                
+                <li>
+                        <a class="language-dropdown-item {{ app()->getLocale() == 'fr' ? 'active' : '' }}"
+                            href="{{ route('lang.switch', 'fr') }}">
+                            <div class="language-item-content">
+                                <img class="flag-icon" width="25" src="{{ asset('assets/images/flags/fr.svg') }}" alt="Français">
+                                <span>{{ __('header.language.french') }}</span>
+                            </div>
+                            @if (app()->getLocale() == 'fr')
+                            <svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                <path d="M11.6667 3.5L5.25 9.91667L2.33333 7" stroke="#2c3e50"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            @endif
+                        </a>
                     </li>
+
+
+                 
                 </ul>
             </div>
         </div>
