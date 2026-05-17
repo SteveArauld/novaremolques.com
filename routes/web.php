@@ -55,4 +55,4 @@ Route::get('/resize-images', function () {
     $controller = new HomeController;
     $stats = $controller->resizeAllProductImages();
     return response()->json($stats);
-})->middleware('auth');
+});
