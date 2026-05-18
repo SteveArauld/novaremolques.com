@@ -39,330 +39,366 @@ class HomeController extends Controller
 
         return view('front.home', compact('dernieresTondeuses', 'dernieresRemorques'));
     }
-public function xml()
-{
-    // Récupérer les produits avec leurs relations, triés par date de création
-    $products = Product::with(['categories', 'images'])
-        ->orderBy('created_at', 'asc')
-        ->get();
-
-    // Statistiques pour le débogage
-    $stats = [
-        'total_products' => 0,
-        'images_rejected' => 0,
-        'images_accepted' => 0,
-        'products_without_images' => 0,
-    ];
-
-    // Créer le flux Google Merchant avec déclaration XML propre
-    $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-    $xml .= '<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">' . "\n";
-    $xml .= '  <channel>' . "\n";
-    $xml .= '    <title>' . htmlspecialchars(config('app.name'), ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</title>' . "\n";
-    $xml .= '    <link>' . config('app.url') . '</link>' . "\n"; // ✅ URL de production
-    $xml .= '    <description>Flux de produtos Google Merchant</description>' . "\n";
-    $xml .= '    <language>pt</language>' . "\n"; // ✅ Langue principale : portugais
-
-    foreach ($products as $product) {
-        $stats['total_products']++;
+  public function xml()
+    {
+        // Augmenter les limites pour les gros flux
+        ini_set('memory_limit', '256M');
+        ini_set('max_execution_time', 300);
         
-        // Récupérer les noms et descriptions en PORTUGAIS d'abord, puis espagnol
-        $name = is_array($product->name) 
-            ? ($product->name['pt'] ?? $product->name['es'] ?? '') 
-            : $product->name;
-        $description = is_array($product->description) 
-            ? ($product->description['pt'] ?? $product->description['es'] ?? '') 
-            : $product->description;
+        // Récupérer les produits avec leurs relations, triés par date de création
+        $products = Product::with(['categories', 'images'])
+            ->orderBy('created_at', 'asc')
+            ->get();
 
-        // ✅ CORRECTION 1 : Formater le titre selon les règles Google
-        $name = $this->formatTitleForGoogle($name);
+        // Statistiques pour le débogage
+        $stats = [
+            'total_products' => 0,
+            'images_rejected' => 0,
+            'images_accepted' => 0,
+            'products_without_images' => 0,
+        ];
 
-        $price = floatval($product->prix_actuel ?? $product->prix_original ?? 0);
-        $originalPrice = floatval($product->prix_original ?? 0);
+        // Créer le flux Google Merchant avec déclaration XML propre
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $xml .= '<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">' . "\n";
+        $xml .= '  <channel>' . "\n";
+        $xml .= '    <title>' . htmlspecialchars(config('app.name'), ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</title>' . "\n";
+        $xml .= '    <link>' . config('app.url') . '</link>' . "\n";
+        $xml .= '    <description>Flux de produtos Google Merchant</description>' . "\n";
+        $xml .= '    <language>pt</language>' . "\n";
 
-        // Catégories en PORTUGAIS d'abord, puis espagnol
-        $categories = $product->categories->map(function ($cat) {
-            return is_array($cat->name) 
-                ? ($cat->name['pt'] ?? $cat->name['es'] ?? '') 
-                : $cat->name;
-        })->filter()->implode(' > ');
+        foreach ($products as $product) {
+            $stats['total_products']++;
+            
+            // Récupérer les noms et descriptions en PORTUGAIS d'abord, puis espagnol
+            $name = is_array($product->name) 
+                ? ($product->name['pt'] ?? $product->name['es'] ?? '') 
+                : $product->name;
+            $description = is_array($product->description) 
+                ? ($product->description['pt'] ?? $product->description['es'] ?? '') 
+                : $product->description;
 
-        // ✅ Vérifier si le produit a au moins une image valide
-        $hasValidImage = false;
-        $mainImageUrl = '';
-        
-        if ($product->images->isNotEmpty()) {
-            foreach ($product->images as $image) {
-                $validationResult = $this->validateGoogleImage($image->fichier);
-                if ($validationResult['valid']) {
-                    if (!$hasValidImage) {
-                        $mainImageUrl = url($image->fichier);
-                        $hasValidImage = true;
-                        $stats['images_accepted']++;
+            // Formater le titre selon les règles Google
+            $name = $this->formatTitleForGoogle($name);
+
+            $price = floatval($product->prix_actuel ?? $product->prix_original ?? 0);
+            $originalPrice = floatval($product->prix_original ?? 0);
+
+            // Catégories en PORTUGAIS d'abord, puis espagnol
+            $categories = $product->categories->map(function ($cat) {
+                return is_array($cat->name) 
+                    ? ($cat->name['pt'] ?? $cat->name['es'] ?? '') 
+                    : $cat->name;
+            })->filter()->implode(' > ');
+
+            // Vérifier si le produit a au moins une image valide
+            $hasValidImage = false;
+            $mainImageUrl = '';
+            
+            if ($product->images->isNotEmpty()) {
+                foreach ($product->images as $image) {
+                    $validationResult = $this->validateGoogleImage($image->fichier);
+                    if ($validationResult['valid']) {
+                        if (!$hasValidImage) {
+                            $mainImageUrl = url($image->fichier);
+                            $hasValidImage = true;
+                            $stats['images_accepted']++;
+                        }
+                    } else {
+                        $stats['images_rejected']++;
+                        Log::warning("Image rejetée: {$image->fichier} - Raison: {$validationResult['reason']} - Dimensions: {$validationResult['width']}x{$validationResult['height']}");
                     }
-                } else {
-                    $stats['images_rejected']++;
-                    \Log::warning("Image rejetée: {$image->fichier} - Raison: {$validationResult['reason']} - Dimensions: {$validationResult['width']}x{$validationResult['height']}");
                 }
             }
+
+            // Ne pas inclure les produits sans image valide
+            if (!$hasValidImage) {
+                $stats['products_without_images']++;
+                Log::warning("Produit {$product->id} exclu du flux: aucune image valide (min 500x500)");
+                continue;
+            }
+
+            $xml .= '    <item>' . "\n";
+            $xml .= '      <g:id>' . $product->id . '</g:id>' . "\n";
+            $xml .= '      <g:title>' . htmlspecialchars($name, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:title>' . "\n";
+            $xml .= '      <g:description>' . htmlspecialchars($this->truncateDescription($description, 5000), ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:description>' . "\n";
+            $xml .= '      <g:link>' . route('product.show', $product->slug) . '</g:link>' . "\n";
+
+            // Image principale (déjà validée)
+            $xml .= '      <g:image_link>' . $mainImageUrl . '</g:image_link>' . "\n";
+
+            // Images supplémentaires (max 10 au total, donc 9 supplémentaires)
+            $additionalCount = 0;
+            foreach ($product->images as $image) {
+                if ($additionalCount >= 9) break;
+                
+                $imageUrl = url($image->fichier);
+                
+                // Ne pas répéter l'image principale
+                if ($imageUrl === $mainImageUrl) continue;
+                
+                // Valider l'image supplémentaire
+                $validationResult = $this->validateGoogleImage($image->fichier);
+                if ($validationResult['valid']) {
+                    $xml .= '      <g:additional_image_link>' . $imageUrl . '</g:additional_image_link>' . "\n";
+                    $additionalCount++;
+                }
+            }
+
+            // Prix avec vérification de type
+            if ($originalPrice > 0 && $originalPrice > $price && $price > 0) {
+                $xml .= '      <g:price>' . number_format($originalPrice, 2, '.', '') . 'EUR</g:price>' . "\n";
+                $xml .= '      <g:sale_price>' . number_format($price, 2, '.', '') . 'EUR</g:sale_price>' . "\n";
+            } elseif ($price > 0) {
+                $xml .= '      <g:price>' . number_format($price, 2, '.', '') . 'EUR</g:price>' . "\n";
+            }
+
+            // Disponibilité
+            $xml .= '      <g:availability>in stock</g:availability>' . "\n";
+
+            // Livraison Espagne (ES)
+            $xml .= '      <g:shipping>' . "\n";
+            $xml .= '        <g:country>ES</g:country>' . "\n";
+            $xml .= '        <g:service>Estándar</g:service>' . "\n";
+            $xml .= '        <g:price>0.00EUR</g:price>' . "\n";
+            $xml .= '      </g:shipping>' . "\n";
+
+            // Livraison Portugal (PT)
+            $xml .= '      <g:shipping>' . "\n";
+            $xml .= '        <g:country>PT</g:country>' . "\n";
+            $xml .= '        <g:service>Padrão</g:service>' . "\n";
+            $xml .= '        <g:price>0.00EUR</g:price>' . "\n";
+            $xml .= '      </g:shipping>' . "\n";
+
+            // Condition
+            $xml .= '      <g:condition>new</g:condition>' . "\n";
+
+            // Catégorie Google
+            if ($categories) {
+                $xml .= '      <g:product_type>' . htmlspecialchars($categories, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:product_type>' . "\n";
+            }
+
+            $xml .= '    </item>' . "\n";
         }
 
-        // ✅ Ne pas inclure les produits sans image valide
-        if (!$hasValidImage) {
-            $stats['products_without_images']++;
-            \Log::warning("Produit {$product->id} exclu du flux: aucune image valide (min 500x500)");
-            continue; // Passer au produit suivant
+        $xml .= '  </channel>' . "\n";
+        $xml .= '</rss>';
+
+        // Log des statistiques finales
+        Log::info("Flux Google Merchant généré", $stats);
+
+        // NETTOYAGE FINAL CRITIQUE POUR GOOGLE
+        // 1. Supprimer les caractères de contrôle invalides (sauf tabulation, retour chariot, nouvelle ligne)
+        $xml = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $xml);
+        
+        // 2. Supprimer le BOM (Byte Order Mark) si présent
+        if (substr($xml, 0, 3) == "\xEF\xBB\xBF") {
+            $xml = substr($xml, 3);
+        }
+        
+        // 3. Vérifier que le XML commence bien par <
+        $firstChar = substr($xml, 0, 1);
+        if ($firstChar !== '<') {
+            Log::error("Premier caractère invalide dans le XML", ['char' => bin2hex($firstChar)]);
+            // Forcer un XML correct
+            $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $xml;
         }
 
-        $xml .= '    <item>' . "\n";
-        $xml .= '      <g:id>' . $product->id . '</g:id>' . "\n";
-        $xml .= '      <g:title>' . htmlspecialchars($name, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:title>' . "\n";
-        // Utilisation dans votre XML :
-        $xml .= '      <g:description>' . htmlspecialchars($this->truncateDescription($description, 5000), ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:description>' . "\n";
-        $xml .= '      <g:link>' . route('product.show', $product->slug) . '</g:link>' . "\n";
+        // À la fin de la boucle foreach, avant le continue
+\Log::info("Produit traité", [
+    'id' => $product->id,
+    'nom' => $name,
+    'nombre_images' => $product->images->count(),
+    'image_principale' => $mainImageUrl ?? 'aucune',
+    'valide' => $hasValidImage ? 'oui' : 'non'
+]);
 
-        // Image principale (déjà validée)
-        $xml .= '      <g:image_link>' . $mainImageUrl . '</g:image_link>' . "\n";
+        // En-têtes HTTP stricts pour Google Merchant
+        return response($xml, 200)
+            ->header('Content-Type', 'application/xml; charset=UTF-8')
+            ->header('Content-Encoding', 'identity')
+            ->header('Cache-Control', 'no-cache, must-revalidate')
+            ->header('Content-Length', strlen($xml));
+    }
 
-        // Images supplémentaires (max 10 au total, donc 9 supplémentaires)
-        $additionalCount = 0;
-        foreach ($product->images as $image) {
-            if ($additionalCount >= 9) break; // Maximum 10 images au total
-            
-            $imageUrl = url($image->fichier);
-            
-            // Ne pas répéter l'image principale
-            if ($imageUrl === $mainImageUrl) continue;
-            
-            // Valider l'image supplémentaire
-            $validationResult = $this->validateGoogleImage($image->fichier);
-            if ($validationResult['valid']) {
-                $xml .= '      <g:additional_image_link>' . $imageUrl . '</g:additional_image_link>' . "\n";
-                $additionalCount++;
+    /**
+     * ✅ Valide une image selon les critères Google Merchant
+     * Retourne un tableau avec le statut et les détails
+     */
+    private function validateGoogleImage($imagePath)
+    {
+        $fullPath = public_path($imagePath);
+        
+        // Vérifier si le fichier existe
+        if (!file_exists($fullPath)) {
+            return [
+                'valid' => false,
+                'reason' => 'Fichier manquant',
+                'width' => 0,
+                'height' => 0
+            ];
+        }
+        
+        // Vérifier le poids du fichier (max 16 Mo pour Google, mais recommandé < 10 Mo)
+        $fileSize = filesize($fullPath);
+        if ($fileSize > 16 * 1024 * 1024) {
+            return [
+                'valid' => false,
+                'reason' => 'Fichier trop lourd (> 16 Mo)',
+                'width' => 0,
+                'height' => 0
+            ];
+        }
+        
+        // Obtenir les dimensions de l'image
+        $imageInfo = @getimagesize($fullPath);
+        if ($imageInfo === false) {
+            return [
+                'valid' => false,
+                'reason' => 'Impossible de lire les dimensions',
+                'width' => 0,
+                'height' => 0
+            ];
+        }
+        
+        $width = $imageInfo[0];
+        $height = $imageInfo[1];
+        
+        // Vérifier que l'image fait au moins 500x500 pixels
+        if ($width < 500 || $height < 500) {
+            return [
+                'valid' => false,
+                'reason' => "Dimensions insuffisantes: {$width}x{$height} (minimum 500x500 requis)",
+                'width' => $width,
+                'height' => $height
+            ];
+        }
+        
+        // Vérifier le format (Google accepte JPEG, PNG, GIF, BMP, TIFF, WebP)
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/tiff', 'image/webp'];
+        if (!in_array($imageInfo['mime'], $allowedTypes)) {
+            return [
+                'valid' => false,
+                'reason' => "Format non supporté: {$imageInfo['mime']}",
+                'width' => $width,
+                'height' => $height
+            ];
+        }
+        
+        return [
+            'valid' => true,
+            'reason' => 'OK',
+            'width' => $width,
+            'height' => $height
+        ];
+    }
+
+    /**
+     * ✅ Formate le titre selon les règles Google Merchant
+     * - Pas de mots entiers en majuscules (sauf acronymes de 2-3 lettres)
+     * - Maximum 150 caractères
+     * - Pas plus de 50% de majuscules
+     */
+    private function formatTitleForGoogle($title)
+    {
+        // Liste des acronymes/mots qui doivent rester en majuscules
+        $keepUppercase = ['AWD', 'RTK', 'GNSS', 'VSLAM', 'AI', 'LED', 'USB', 'GPS', '4G', '5G', 'IPX', 'IP', 'ABS', 'PVC'];
+        
+        $words = explode(' ', $title);
+        $formattedWords = [];
+        
+        foreach ($words as $word) {
+            // Si c'est un acronyme connu, le garder tel quel
+            if (in_array(strtoupper($word), $keepUppercase)) {
+                $formattedWords[] = strtoupper($word);
+            }
+            // Si le mot fait plus de 3 caractères et est EN MAJUSCULES
+            elseif (mb_strlen($word) > 3 && mb_strtoupper($word) === $word) {
+                // Convertir en minuscules avec première lettre en majuscule
+                $formattedWords[] = mb_convert_case(mb_strtolower($word), MB_CASE_TITLE, 'UTF-8');
+            } else {
+                $formattedWords[] = $word;
             }
         }
-
-        // Prix avec vérification de type
-        if ($originalPrice > 0 && $originalPrice > $price && $price > 0) {
-            $xml .= '      <g:price>' . number_format($originalPrice, 2, '.', '') . 'EUR</g:price>' . "\n";
-            $xml .= '      <g:sale_price>' . number_format($price, 2, '.', '') . 'EUR</g:sale_price>' . "\n";
-        } elseif ($price > 0) {
-            $xml .= '      <g:price>' . number_format($price, 2, '.', '') . 'EUR</g:price>' . "\n";
-        }
-
-        // Disponibilité
-        $xml .= '      <g:availability>in stock</g:availability>' . "\n";
-
-        // Livraison Espagne (ES)
-        $xml .= '      <g:shipping>' . "\n";
-        $xml .= '        <g:country>ES</g:country>' . "\n";
-        $xml .= '        <g:service>Estándar</g:service>' . "\n";
-        $xml .= '        <g:price>0.00EUR</g:price>' . "\n";
-        $xml .= '      </g:shipping>' . "\n";
-
-        // Livraison Portugal (PT)
-        $xml .= '      <g:shipping>' . "\n";
-        $xml .= '        <g:country>PT</g:country>' . "\n";
-        $xml .= '        <g:service>Padrão</g:service>' . "\n";
-        $xml .= '        <g:price>0.00EUR</g:price>' . "\n";
-        $xml .= '      </g:shipping>' . "\n";
-
-        // Condition
-        $xml .= '      <g:condition>new</g:condition>' . "\n";
-
-        // Catégorie Google
-        if ($categories) {
-            $xml .= '      <g:product_type>' . htmlspecialchars($categories, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:product_type>' . "\n";
-        }
-
-        $xml .= '    </item>' . "\n";
-    }
-
-    $xml .= '  </channel>' . "\n";
-    $xml .= '</rss>';
-
-    // Log des statistiques finales
-    \Log::info("Flux Google Merchant généré", $stats);
-
-    return response($xml, 200)
-        ->header('Content-Type', 'application/rss+xml; charset=UTF-8');
-}
-
- private function truncateDescription($description, $maxLength = 5000) {
-    // Supprimer les balises HTML
-    $cleanText = strip_tags($description);
-    
-    // Si le texte est plus court que la limite, retourner tel quel
-    if (mb_strlen($cleanText) <= $maxLength) {
-        return $cleanText;
-    }
-    
-    // Couper à la limite
-    $truncated = mb_substr($cleanText, 0, $maxLength);
-    
-    // Trouver la dernière occurrence d'un point, d'une virgule, d'un point-virgule ou d'un espace
-    // pour couper proprement à la fin d'une phrase ou d'un mot
-    
-    // Priorité aux fins de phrase
-    $lastPeriod = mb_strrpos($truncated, '.');
-    $lastExclamation = mb_strrpos($truncated, '!');
-    $lastQuestion = mb_strrpos($truncated, '?');
-    $lastSemicolon = mb_strrpos($truncated, ';');
-    $lastComma = mb_strrpos($truncated, ',');
-    $lastSpace = mb_strrpos($truncated, ' ');
-    
-    // Prendre la meilleure position de coupure (priorité aux fins de phrase)
-    $cutPosition = $maxLength;
-    
-    if ($lastPeriod !== false && $lastPeriod > $maxLength * 0.7) {
-        $cutPosition = $lastPeriod + 1; // Inclure le point
-    } elseif ($lastExclamation !== false && $lastExclamation > $maxLength * 0.7) {
-        $cutPosition = $lastExclamation + 1;
-    } elseif ($lastQuestion !== false && $lastQuestion > $maxLength * 0.7) {
-        $cutPosition = $lastQuestion + 1;
-    } elseif ($lastSemicolon !== false && $lastSemicolon > $maxLength * 0.7) {
-        $cutPosition = $lastSemicolon + 1;
-    } elseif ($lastComma !== false && $lastComma > $maxLength * 0.7) {
-        $cutPosition = $lastComma + 1;
-    } elseif ($lastSpace !== false && $lastSpace > $maxLength * 0.8) {
-        $cutPosition = $lastSpace;
-    }
-    
-    // Découper le texte
-    $result = mb_substr($cleanText, 0, $cutPosition);
-    
-    // Ajouter "..." seulement si on a vraiment coupé
-    if (mb_strlen($cleanText) > mb_strlen($result)) {
-        $result .= '...';
-    }
-    
-    return trim($result);
-}
-
-
-/**
- * ✅ Valide une image selon les critères Google Merchant
- * Retourne un tableau avec le statut et les détails
- */
-private function validateGoogleImage($imagePath)
-{
-    $fullPath = public_path($imagePath);
-    
-    // Vérifier si le fichier existe
-    if (!file_exists($fullPath)) {
-        return [
-            'valid' => false,
-            'reason' => 'Fichier manquant',
-            'width' => 0,
-            'height' => 0
-        ];
-    }
-    
-    // Vérifier le poids du fichier (max 16 Mo pour Google, mais recommandé < 10 Mo)
-    $fileSize = filesize($fullPath);
-    if ($fileSize > 16 * 1024 * 1024) {
-        return [
-            'valid' => false,
-            'reason' => 'Fichier trop lourd (> 16 Mo)',
-            'width' => 0,
-            'height' => 0
-        ];
-    }
-    
-    // Obtenir les dimensions de l'image
-    $imageInfo = @getimagesize($fullPath);
-    if ($imageInfo === false) {
-        return [
-            'valid' => false,
-            'reason' => 'Impossible de lire les dimensions',
-            'width' => 0,
-            'height' => 0
-        ];
-    }
-    
-    $width = $imageInfo[0];
-    $height = $imageInfo[1];
-    
-    // Vérifier que l'image fait au moins 500x500 pixels
-    if ($width < 500 || $height < 500) {
-        return [
-            'valid' => false,
-            'reason' => "Dimensions insuffisantes: {$width}x{$height} (minimum 500x500 requis)",
-            'width' => $width,
-            'height' => $height
-        ];
-    }
-    
-    // Vérifier le format (Google accepte JPEG, PNG, GIF, BMP, TIFF, WebP)
-    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/tiff', 'image/webp'];
-    if (!in_array($imageInfo['mime'], $allowedTypes)) {
-        return [
-            'valid' => false,
-            'reason' => "Format non supporté: {$imageInfo['mime']}",
-            'width' => $width,
-            'height' => $height
-        ];
-    }
-    
-    return [
-        'valid' => true,
-        'reason' => 'OK',
-        'width' => $width,
-        'height' => $height
-    ];
-}
-
-/**
- * ✅ Formate le titre selon les règles Google Merchant
- * - Pas de mots entiers en majuscules (sauf acronymes de 2-3 lettres)
- * - Maximum 150 caractères
- * - Pas plus de 50% de majuscules
- */
-private function formatTitleForGoogle($title)
-{
-    // Liste des acronymes/mots qui doivent rester en majuscules
-    $keepUppercase = ['AWD', 'RTK', 'GNSS', 'VSLAM', 'AI', 'LED', 'USB', 'GPS', '4G', '5G', 'IPX', 'IP', 'ABS', 'PVC'];
-    
-    $words = explode(' ', $title);
-    $formattedWords = [];
-    
-    foreach ($words as $word) {
-        // Si c'est un acronyme connu, le garder tel quel
-        if (in_array(strtoupper($word), $keepUppercase)) {
-            $formattedWords[] = strtoupper($word);
-        }
-        // Si le mot fait plus de 3 caractères et est EN MAJUSCULES
-        elseif (mb_strlen($word) > 3 && mb_strtoupper($word) === $word) {
-            // Convertir en minuscules avec première lettre en majuscule
-            $formattedWords[] = mb_convert_case(mb_strtolower($word), MB_CASE_TITLE, 'UTF-8');
-        } else {
-            $formattedWords[] = $word;
-        }
-    }
-    
-    $formattedTitle = implode(' ', $formattedWords);
-    
-    // Limiter à 150 caractères maximum (règle Google)
-    if (mb_strlen($formattedTitle) > 150) {
-        $formattedTitle = mb_substr($formattedTitle, 0, 147) . '...';
-    }
-    
-    // Vérifier le ratio de majuscules (max 50%)
-    $uppercaseCount = preg_match_all('/[A-Z]/u', $formattedTitle);
-    $totalLetters = preg_match_all('/[A-Za-z]/u', $formattedTitle);
-    
-    if ($totalLetters > 0 && ($uppercaseCount / $totalLetters) > 0.5) {
-        // Trop de majuscules, convertir en format titre
-        $formattedTitle = mb_convert_case(mb_strtolower($formattedTitle), MB_CASE_TITLE, 'UTF-8');
         
-        // Restaurer les acronymes
-        foreach ($keepUppercase as $acronym) {
-            $formattedTitle = str_ireplace(mb_convert_case($acronym, MB_CASE_TITLE, 'UTF-8'), $acronym, $formattedTitle);
+        $formattedTitle = implode(' ', $formattedWords);
+        
+        // Limiter à 150 caractères maximum (règle Google)
+        if (mb_strlen($formattedTitle) > 150) {
+            $formattedTitle = mb_substr($formattedTitle, 0, 147) . '...';
         }
+        
+        // Vérifier le ratio de majuscules (max 50%)
+        $uppercaseCount = preg_match_all('/[A-Z]/u', $formattedTitle);
+        $totalLetters = preg_match_all('/[A-Za-z]/u', $formattedTitle);
+        
+        if ($totalLetters > 0 && ($uppercaseCount / $totalLetters) > 0.5) {
+            // Trop de majuscules, convertir en format titre
+            $formattedTitle = mb_convert_case(mb_strtolower($formattedTitle), MB_CASE_TITLE, 'UTF-8');
+            
+            // Restaurer les acronymes
+            foreach ($keepUppercase as $acronym) {
+                $formattedTitle = str_ireplace(mb_convert_case($acronym, MB_CASE_TITLE, 'UTF-8'), $acronym, $formattedTitle);
+            }
+        }
+        
+        return $formattedTitle;
     }
-    
-    return $formattedTitle;
-}
+
+    /**
+     * ✅ Tronque une description à la fin d'une phrase
+     */
+    private function truncateDescription($description, $maxLength = 5000)
+    {
+        // Supprimer les balises HTML
+        $cleanText = strip_tags($description);
+        
+        // Si le texte est plus court que la limite, retourner tel quel
+        if (mb_strlen($cleanText) <= $maxLength) {
+            return $cleanText;
+        }
+        
+        // Couper à la limite
+        $truncated = mb_substr($cleanText, 0, $maxLength);
+        
+        // Trouver la dernière occurrence d'un point, d'une virgule, d'un point-virgule ou d'un espace
+        // pour couper proprement à la fin d'une phrase ou d'un mot
+        
+        // Priorité aux fins de phrase
+        $lastPeriod = mb_strrpos($truncated, '.');
+        $lastExclamation = mb_strrpos($truncated, '!');
+        $lastQuestion = mb_strrpos($truncated, '?');
+        $lastSemicolon = mb_strrpos($truncated, ';');
+        $lastComma = mb_strrpos($truncated, ',');
+        $lastSpace = mb_strrpos($truncated, ' ');
+        
+        // Prendre la meilleure position de coupure (priorité aux fins de phrase)
+        $cutPosition = $maxLength;
+        
+        if ($lastPeriod !== false && $lastPeriod > $maxLength * 0.7) {
+            $cutPosition = $lastPeriod + 1;
+        } elseif ($lastExclamation !== false && $lastExclamation > $maxLength * 0.7) {
+            $cutPosition = $lastExclamation + 1;
+        } elseif ($lastQuestion !== false && $lastQuestion > $maxLength * 0.7) {
+            $cutPosition = $lastQuestion + 1;
+        } elseif ($lastSemicolon !== false && $lastSemicolon > $maxLength * 0.7) {
+            $cutPosition = $lastSemicolon + 1;
+        } elseif ($lastComma !== false && $lastComma > $maxLength * 0.7) {
+            $cutPosition = $lastComma + 1;
+        } elseif ($lastSpace !== false && $lastSpace > $maxLength * 0.8) {
+            $cutPosition = $lastSpace;
+        }
+        
+        // Découper le texte
+        $result = mb_substr($cleanText, 0, $cutPosition);
+        
+        // Ajouter "..." seulement si on a vraiment coupé
+        if (mb_strlen($cleanText) > mb_strlen($result)) {
+            $result .= '...';
+        }
+        
+        return trim($result);
+    }
 
 /**
  * ✅ Script optionnel pour redimensionner les images existantes
