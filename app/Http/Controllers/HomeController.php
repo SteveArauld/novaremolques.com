@@ -117,7 +117,8 @@ public function xml()
         $xml .= '    <item>' . "\n";
         $xml .= '      <g:id>' . $product->id . '</g:id>' . "\n";
         $xml .= '      <g:title>' . htmlspecialchars($name, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:title>' . "\n";
-        $xml .= '      <g:description>' . htmlspecialchars(Str::limit(strip_tags($description), 5000), ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:description>' . "\n";
+        // Utilisation dans votre XML :
+        $xml .= '      <g:description>' . htmlspecialchars($this->truncateDescription($description, 5000), ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:description>' . "\n";
         $xml .= '      <g:link>' . route('product.show', $product->slug) . '</g:link>' . "\n";
 
         // Image principale (déjà validée)
@@ -186,6 +187,58 @@ public function xml()
     return response($xml, 200)
         ->header('Content-Type', 'application/rss+xml; charset=UTF-8');
 }
+
+ private function truncateDescription($description, $maxLength = 5000) {
+    // Supprimer les balises HTML
+    $cleanText = strip_tags($description);
+    
+    // Si le texte est plus court que la limite, retourner tel quel
+    if (mb_strlen($cleanText) <= $maxLength) {
+        return $cleanText;
+    }
+    
+    // Couper à la limite
+    $truncated = mb_substr($cleanText, 0, $maxLength);
+    
+    // Trouver la dernière occurrence d'un point, d'une virgule, d'un point-virgule ou d'un espace
+    // pour couper proprement à la fin d'une phrase ou d'un mot
+    
+    // Priorité aux fins de phrase
+    $lastPeriod = mb_strrpos($truncated, '.');
+    $lastExclamation = mb_strrpos($truncated, '!');
+    $lastQuestion = mb_strrpos($truncated, '?');
+    $lastSemicolon = mb_strrpos($truncated, ';');
+    $lastComma = mb_strrpos($truncated, ',');
+    $lastSpace = mb_strrpos($truncated, ' ');
+    
+    // Prendre la meilleure position de coupure (priorité aux fins de phrase)
+    $cutPosition = $maxLength;
+    
+    if ($lastPeriod !== false && $lastPeriod > $maxLength * 0.7) {
+        $cutPosition = $lastPeriod + 1; // Inclure le point
+    } elseif ($lastExclamation !== false && $lastExclamation > $maxLength * 0.7) {
+        $cutPosition = $lastExclamation + 1;
+    } elseif ($lastQuestion !== false && $lastQuestion > $maxLength * 0.7) {
+        $cutPosition = $lastQuestion + 1;
+    } elseif ($lastSemicolon !== false && $lastSemicolon > $maxLength * 0.7) {
+        $cutPosition = $lastSemicolon + 1;
+    } elseif ($lastComma !== false && $lastComma > $maxLength * 0.7) {
+        $cutPosition = $lastComma + 1;
+    } elseif ($lastSpace !== false && $lastSpace > $maxLength * 0.8) {
+        $cutPosition = $lastSpace;
+    }
+    
+    // Découper le texte
+    $result = mb_substr($cleanText, 0, $cutPosition);
+    
+    // Ajouter "..." seulement si on a vraiment coupé
+    if (mb_strlen($cleanText) > mb_strlen($result)) {
+        $result .= '...';
+    }
+    
+    return trim($result);
+}
+
 
 /**
  * ✅ Valide une image selon les critères Google Merchant
