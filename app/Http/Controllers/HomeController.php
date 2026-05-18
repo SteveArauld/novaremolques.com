@@ -28,9 +28,9 @@ class HomeController extends Controller
 
         $dernieresRemorques = Product::with(['categories', 'images'])
             ->whereHas('categories', function ($query) {
-                $query->where('name->fr', 'LIKE', '%remorque%')
-                    ->orWhere('name->es', 'LIKE', '%remolque%')
-                    ->orWhere('name->it', 'LIKE', '%rimorchio%');
+                $query->where('name', 'LIKE', '%remorque%')
+                    ->orWhere('name', 'LIKE', '%remolque%')
+                    ->orWhere('name', 'LIKE', '%rimorchio%');
             })
             ->orderBy('created_at', 'asc')
             ->get();

@@ -25,11 +25,11 @@ class ProductSeeder extends Seeder
         $slugsUtilises = [];
 
         foreach ($products as $index => $productData) {
-            $nomFr = $productData['nom']['fr'];
-            $this->command->info("📦 [" . ($index + 1) . "/$total] Import: " . $nomFr);
+            $nomPT = $productData['nom']['PT'];
+            $this->command->info("📦 [" . ($index + 1) . "/$total] Import: " . $nomPT);
             
             // Générer un slug unique
-            $slug = Str::slug($nomFr);
+            $slug = Str::slug($nomPT);
             $slugOriginal = $slug;
             $suffixe = 2;
             while (in_array($slug, $slugsUtilises)) {
