@@ -143,10 +143,10 @@ public function xml()
 
         // Prix avec vérification de type
         if ($originalPrice > 0 && $originalPrice > $price && $price > 0) {
-            $xml .= '      <g:price>' . number_format($originalPrice, 2, '.', '') . ' EUR</g:price>' . "\n";
-            $xml .= '      <g:sale_price>' . number_format($price, 2, '.', '') . ' EUR</g:sale_price>' . "\n";
+            $xml .= '      <g:price>' . number_format($originalPrice, 2, '.', '') . 'EUR</g:price>' . "\n";
+            $xml .= '      <g:sale_price>' . number_format($price, 2, '.', '') . 'EUR</g:sale_price>' . "\n";
         } elseif ($price > 0) {
-            $xml .= '      <g:price>' . number_format($price, 2, '.', '') . ' EUR</g:price>' . "\n";
+            $xml .= '      <g:price>' . number_format($price, 2, '.', '') . 'EUR</g:price>' . "\n";
         }
 
         // Disponibilité
@@ -156,14 +156,14 @@ public function xml()
         $xml .= '      <g:shipping>' . "\n";
         $xml .= '        <g:country>ES</g:country>' . "\n";
         $xml .= '        <g:service>Estándar</g:service>' . "\n";
-        $xml .= '        <g:price>0.00 EUR</g:price>' . "\n";
+        $xml .= '        <g:price>0.00EUR</g:price>' . "\n";
         $xml .= '      </g:shipping>' . "\n";
 
         // Livraison Portugal (PT)
         $xml .= '      <g:shipping>' . "\n";
         $xml .= '        <g:country>PT</g:country>' . "\n";
         $xml .= '        <g:service>Padrão</g:service>' . "\n";
-        $xml .= '        <g:price>0.00 EUR</g:price>' . "\n";
+        $xml .= '        <g:price>0.00EUR</g:price>' . "\n";
         $xml .= '      </g:shipping>' . "\n";
 
         // Condition
