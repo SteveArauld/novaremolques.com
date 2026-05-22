@@ -654,187 +654,292 @@ public function submitReview(Request $request, $productId)
 
 
 
-     public function xml()
-    {
-        // Augmenter les limites pour les gros flux
-        ini_set('memory_limit', '256M');
-        ini_set('max_execution_time', 300);
+  public function xml()
+{
+    // Augmenter les limites pour les gros flux
+    ini_set('memory_limit', '256M');
+    ini_set('max_execution_time', 300);
 
-        // Récupérer les produits avec leurs relations, triés par date de création
-        $products = Product::with(['categories', 'images'])
-            ->orderBy('created_at', 'asc')
-            ->get();
+    // Récupérer les produits avec leurs relations, triés par date de création
+    $products = Product::with(['categories', 'images', 'reviews'])
+        ->orderBy('created_at', 'asc')
+        ->get();
 
-        // Statistiques pour le débogage
-        $stats = [
-            'total_products' => 0,
-            'images_rejected' => 0,
-            'images_accepted' => 0,
-            'products_without_images' => 0,
-        ];
+    // Statistiques pour le débogage
+    $stats = [
+        'total_products' => 0,
+        'images_rejected' => 0,
+        'images_accepted' => 0,
+        'products_without_images' => 0,
+        'products_with_reviews' => 0,
+    ];
 
-        // Créer le flux Google Merchant avec déclaration XML propre
-        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $xml .= '<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">' . "\n";
-        $xml .= '  <channel>' . "\n";
-        $xml .= '    <title>' . htmlspecialchars(config('app.name'), ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</title>' . "\n";
-        $xml .= '    <link>' . config('app.url') . '</link>' . "\n";
-        $xml .= '    <description>Flux de produtos Google Merchant</description>' . "\n";
-        $xml .= '    <language>pt</language>' . "\n";
+    // Créer le flux Google Merchant avec déclaration XML propre
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+    $xml .= '<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">' . "\n";
+    $xml .= '  <channel>' . "\n";
+    $xml .= '    <title>' . htmlspecialchars(config('app.name'), ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</title>' . "\n";
+    $xml .= '    <link>' . config('app.url') . '</link>' . "\n";
+    $xml .= '    <description>Flux de produtos Google Merchant</description>' . "\n";
+    $xml .= '    <language>pt</language>' . "\n";
 
-        foreach ($products as $product) {
-            $stats['total_products']++;
+    foreach ($products as $product) {
+        $stats['total_products']++;
 
-            // Récupérer les noms et descriptions en PORTUGAIS d'abord, puis espagnol
-            $name = is_array($product->name)
-                ? ($product->name['pt'] ?? $product->name['es'] ?? '')
-                : $product->name;
-            $description = is_array($product->description)
-                ? ($product->description['pt'] ?? $product->description['es'] ?? '')
-                : $product->description;
+        // Récupérer les noms et descriptions en PORTUGAIS d'abord, puis espagnol
+        $name = is_array($product->name)
+            ? ($product->name['pt'] ?? $product->name['es'] ?? '')
+            : $product->name;
+        $description = is_array($product->description)
+            ? ($product->description['pt'] ?? $product->description['es'] ?? '')
+            : $product->description;
 
-            // Formater le titre selon les règles Google
-            $name = $this->formatTitleForGoogle($name);
+        // Formater le titre selon les règles Google
+        $name = $this->formatTitleForGoogle($name);
 
-            $price = floatval($product->prix_actuel ?? $product->prix_original ?? 0);
-            $originalPrice = floatval($product->prix_original ?? 0);
+        $price = floatval($product->prix_actuel ?? $product->prix_original ?? 0);
+        $originalPrice = floatval($product->prix_original ?? 0);
 
-            // Catégories en PORTUGAIS d'abord, puis espagnol
-            $categories = $product->categories->map(function ($cat) {
-                return is_array($cat->name)
-                    ? ($cat->name['pt'] ?? $cat->name['es'] ?? '')
-                    : $cat->name;
-            })->filter()->implode(' > ');
+        // Catégories en PORTUGAIS d'abord, puis espagnol
+        $categories = $product->categories->map(function ($cat) {
+            return is_array($cat->name)
+                ? ($cat->name['pt'] ?? $cat->name['es'] ?? '')
+                : $cat->name;
+        })->filter()->implode(' > ');
 
-            // Vérifier si le produit a au moins une image valide
-            $hasValidImage = false;
-            $mainImageUrl = '';
+        // Vérifier si le produit a au moins une image valide
+        $hasValidImage = false;
+        $mainImageUrl = '';
 
-            if ($product->images->isNotEmpty()) {
-                foreach ($product->images as $image) {
-                    $validationResult = $this->validateGoogleImage($image->fichier);
-                    if ($validationResult['valid']) {
-                        if (!$hasValidImage) {
-                            $mainImageUrl = url($image->fichier);
-                            $hasValidImage = true;
-                            $stats['images_accepted']++;
-                        }
-                    } else {
-                        $stats['images_rejected']++;
-                        Log::warning("Image rejetée: {$image->fichier} - Raison: {$validationResult['reason']} - Dimensions: {$validationResult['width']}x{$validationResult['height']}");
-                    }
-                }
-            }
-
-            // Ne pas inclure les produits sans image valide
-            if (!$hasValidImage) {
-                $stats['products_without_images']++;
-                Log::warning("Produit {$product->id} exclu du flux: aucune image valide (min 500x500)");
-                continue;
-            }
-
-            $xml .= '    <item>' . "\n";
-            $xml .= '      <g:id>' . $product->id . '</g:id>' . "\n";
-            $xml .= '      <g:title>' . htmlspecialchars($name, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:title>' . "\n";
-            $xml .= '      <g:description>' . htmlspecialchars($this->truncateDescription($description, 5000), ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:description>' . "\n";
-            $xml .= '      <g:link>' . route('product.show', $product->slug) . '</g:link>' . "\n";
-
-            // Image principale (déjà validée)
-            $xml .= '      <g:image_link>' . $mainImageUrl . '</g:image_link>' . "\n";
-
-            // Images supplémentaires (max 10 au total, donc 9 supplémentaires)
-            $additionalCount = 0;
+        if ($product->images->isNotEmpty()) {
             foreach ($product->images as $image) {
-                if ($additionalCount >= 9) break;
-
-                $imageUrl = url($image->fichier);
-
-                // Ne pas répéter l'image principale
-                if ($imageUrl === $mainImageUrl) continue;
-
-                // Valider l'image supplémentaire
                 $validationResult = $this->validateGoogleImage($image->fichier);
                 if ($validationResult['valid']) {
-                    $xml .= '      <g:additional_image_link>' . $imageUrl . '</g:additional_image_link>' . "\n";
-                    $additionalCount++;
+                    if (!$hasValidImage) {
+                        $mainImageUrl = url($image->fichier);
+                        $hasValidImage = true;
+                        $stats['images_accepted']++;
+                    }
+                } else {
+                    $stats['images_rejected']++;
+                    Log::warning("Image rejetée: {$image->fichier} - Raison: {$validationResult['reason']} - Dimensions: {$validationResult['width']}x{$validationResult['height']}");
                 }
             }
+        }
 
-            // Prix avec vérification de type
-            if ($originalPrice > 0 && $originalPrice > $price && $price > 0) {
-                $xml .= '      <g:price>' . number_format($originalPrice, 2, '.', '') . 'EUR</g:price>' . "\n";
-                $xml .= '      <g:sale_price>' . number_format($price, 2, '.', '') . 'EUR</g:sale_price>' . "\n";
-            } elseif ($price > 0) {
-                $xml .= '      <g:price>' . number_format($price, 2, '.', '') . 'EUR</g:price>' . "\n";
+        // Ne pas inclure les produits sans image valide
+        if (!$hasValidImage) {
+            $stats['products_without_images']++;
+            Log::warning("Produit {$product->id} exclu du flux: aucune image valide (min 500x500)");
+            continue;
+        }
+
+        // Récupérer les avis approuvés
+        $approvedReviews = $product->reviews()->approved()->get();
+        $averageRating = $approvedReviews->avg('rating') ?? 0;
+        $reviewCount = $approvedReviews->count();
+        
+        if ($reviewCount > 0) {
+            $stats['products_with_reviews']++;
+        }
+
+        $xml .= '    <item>' . "\n";
+        $xml .= '      <g:id>' . $product->id . '</g:id>' . "\n";
+        $xml .= '      <g:title>' . htmlspecialchars($name, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:title>' . "\n";
+        $xml .= '      <g:description>' . htmlspecialchars($this->truncateDescription($description, 5000), ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:description>' . "\n";
+        $xml .= '      <g:link>' . route('product.show', $product->slug) . '</g:link>' . "\n";
+
+        // Image principale (déjà validée)
+        $xml .= '      <g:image_link>' . $mainImageUrl . '</g:image_link>' . "\n";
+
+        // Images supplémentaires (max 10 au total, donc 9 supplémentaires)
+        $additionalCount = 0;
+        foreach ($product->images as $image) {
+            if ($additionalCount >= 9) break;
+
+            $imageUrl = url($image->fichier);
+
+            // Ne pas répéter l'image principale
+            if ($imageUrl === $mainImageUrl) continue;
+
+            // Valider l'image supplémentaire
+            $validationResult = $this->validateGoogleImage($image->fichier);
+            if ($validationResult['valid']) {
+                $xml .= '      <g:additional_image_link>' . $imageUrl . '</g:additional_image_link>' . "\n";
+                $additionalCount++;
             }
+        }
 
-            // Disponibilité
-            $xml .= '      <g:availability>in stock</g:availability>' . "\n";
+        // Prix avec vérification de type
+        if ($originalPrice > 0 && $originalPrice > $price && $price > 0) {
+            $xml .= '      <g:price>' . number_format($originalPrice, 2, '.', '') . 'EUR</g:price>' . "\n";
+            $xml .= '      <g:sale_price>' . number_format($price, 2, '.', '') . 'EUR</g:sale_price>' . "\n";
+        } elseif ($price > 0) {
+            $xml .= '      <g:price>' . number_format($price, 2, '.', '') . 'EUR</g:price>' . "\n";
+        }
 
-            // Livraison Espagne (ES)
-            $xml .= '      <g:shipping>' . "\n";
-            $xml .= '        <g:country>ES</g:country>' . "\n";
-            $xml .= '        <g:service>Estándar</g:service>' . "\n";
-            $xml .= '        <g:price>0.00EUR</g:price>' . "\n";
-            $xml .= '      </g:shipping>' . "\n";
+        // Disponibilité
+        $xml .= '      <g:availability>in stock</g:availability>' . "\n";
 
-            // Livraison Portugal (PT)
-            $xml .= '      <g:shipping>' . "\n";
-            $xml .= '        <g:country>PT</g:country>' . "\n";
-            $xml .= '        <g:service>Padrão</g:service>' . "\n";
-            $xml .= '        <g:price>0.00EUR</g:price>' . "\n";
-            $xml .= '      </g:shipping>' . "\n";
+        // ============ AJOUT DES NOTES ET AVIS ============
+        
+        // Note moyenne du produit (obligatoire si on ajoute des avis)
+        if ($reviewCount > 0 && $averageRating > 0) {
+            $xml .= '      <g:product_rating>' . number_format($averageRating, 1, '.', '') . '</g:product_rating>' . "\n";
+            $xml .= '      <g:product_review_count>' . $reviewCount . '</g:product_review_count>' . "\n";
+        }
+        
+        // Ajouter les avis individuels (max 10 avis recommandés par Google)
+        $reviewLimit = 0;
+        foreach ($approvedReviews->take(10) as $review) {
+            $reviewLimit++;
+            
+            $xml .= '      <g:product_review>' . "\n";
+            
+            // Note de l'avis
+            $xml .= '        <g:product_review_rating>' . $review->rating . '</g:product_review_rating>' . "\n";
+            
+            // Contenu de l'avis (nettoyé et limité)
+            $reviewContent = $this->cleanReviewContent($review->comment);
+            $xml .= '        <g:product_review_content>' . htmlspecialchars($reviewContent, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:product_review_content>' . "\n";
+            
+            // Date de l'avis
+            $xml .= '        <g:product_review_timestamp>' . $review->created_at->format('Y-m-d\TH:i:s') . '</g:product_review_timestamp>' . "\n";
+            
+            // Auteur de l'avis
+            $xml .= '        <g:product_review_author>' . htmlspecialchars($review->author_name, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:product_review_author>' . "\n";
+            
+            // URL de l'avis (page produit)
+            $xml .= '        <g:product_review_url>' . route('product.show', $product->slug) . '#reviews</g:product_review_url>' . "\n";
+            
+            $xml .= '      </g:product_review>' . "\n";
+        }
 
-            // Condition
-            $xml .= '      <g:condition>new</g:condition>' . "\n";
+        // Livraison Espagne (ES)
+        $xml .= '      <g:shipping>' . "\n";
+        $xml .= '        <g:country>ES</g:country>' . "\n";
+        $xml .= '        <g:service>Estándar</g:service>' . "\n";
+        $xml .= '        <g:price>0.00EUR</g:price>' . "\n";
+        $xml .= '      </g:shipping>' . "\n";
 
-            // Catégorie Google
-            if ($categories) {
-                $xml .= '      <g:product_type>' . htmlspecialchars($categories, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:product_type>' . "\n";
+        // Livraison Portugal (PT)
+        $xml .= '      <g:shipping>' . "\n";
+        $xml .= '        <g:country>PT</g:country>' . "\n";
+        $xml .= '        <g:service>Padrão</g:service>' . "\n";
+        $xml .= '        <g:price>0.00EUR</g:price>' . "\n";
+        $xml .= '      </g:shipping>' . "\n";
+
+        // Condition
+        $xml .= '      <g:condition>new</g:condition>' . "\n";
+
+        // Catégorie Google
+        if ($categories) {
+            $xml .= '      <g:product_type>' . htmlspecialchars($categories, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:product_type>' . "\n";
+        }
+        
+        // GTIN ou MPN (optionnel mais recommandé)
+        if ($product->sku) {
+            $xml .= '      <g:mpn>' . htmlspecialchars($product->sku, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:mpn>' . "\n";
+        }
+        
+        // Marque (optionnel mais recommandé)
+        if ($product->brand ?? false) {
+            $xml .= '      <g:brand>' . htmlspecialchars($product->brand, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:brand>' . "\n";
+        } else {
+            // Extraire la marque du nom du produit (si possible)
+            $brand = $this->extractBrandFromName($name);
+            if ($brand) {
+                $xml .= '      <g:brand>' . htmlspecialchars($brand, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:brand>' . "\n";
             }
-
-            $xml .= '    </item>' . "\n";
         }
 
-        $xml .= '  </channel>' . "\n";
-        $xml .= '</rss>';
-
-        // Log des statistiques finales
-        Log::info("Flux Google Merchant généré", $stats);
-
-        // NETTOYAGE FINAL CRITIQUE POUR GOOGLE
-        // 1. Supprimer les caractères de contrôle invalides (sauf tabulation, retour chariot, nouvelle ligne)
-        $xml = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $xml);
-
-        // 2. Supprimer le BOM (Byte Order Mark) si présent
-        if (substr($xml, 0, 3) == "\xEF\xBB\xBF") {
-            $xml = substr($xml, 3);
-        }
-
-        // 3. Vérifier que le XML commence bien par <
-        $firstChar = substr($xml, 0, 1);
-        if ($firstChar !== '<') {
-            Log::error("Premier caractère invalide dans le XML", ['char' => bin2hex($firstChar)]);
-            // Forcer un XML correct
-            $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $xml;
-        }
-
-        // À la fin de la boucle foreach, avant le continue
-        \Log::info("Produit traité", [
-            'id' => $product->id,
-            'nom' => $name,
-            'nombre_images' => $product->images->count(),
-            'image_principale' => $mainImageUrl ?? 'aucune',
-            'valide' => $hasValidImage ? 'oui' : 'non'
-        ]);
-
-        // En-têtes HTTP stricts pour Google Merchant
-        return response($xml, 200)
-            ->header('Content-Type', 'application/xml; charset=UTF-8')
-            ->header('Content-Encoding', 'identity')
-            ->header('Cache-Control', 'no-cache, must-revalidate')
-            ->header('Content-Length', strlen($xml));
+        $xml .= '    </item>' . "\n";
     }
+
+    $xml .= '  </channel>' . "\n";
+    $xml .= '</rss>';
+
+    // Log des statistiques finales
+    Log::info("Flux Google Merchant généré", $stats);
+
+    // NETTOYAGE FINAL CRITIQUE POUR GOOGLE
+    // 1. Supprimer les caractères de contrôle invalides (sauf tabulation, retour chariot, nouvelle ligne)
+    $xml = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $xml);
+
+    // 2. Supprimer le BOM (Byte Order Mark) si présent
+    if (substr($xml, 0, 3) == "\xEF\xBB\xBF") {
+        $xml = substr($xml, 3);
+    }
+
+    // 3. Vérifier que le XML commence bien par <
+    $firstChar = substr($xml, 0, 1);
+    if ($firstChar !== '<') {
+        Log::error("Premier caractère invalide dans le XML", ['char' => bin2hex($firstChar)]);
+        // Forcer un XML correct
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $xml;
+    }
+
+    // À la fin de la boucle foreach, avant le continue
+    \Log::info("Produit traité", [
+        'id' => $product->id,
+        'nom' => $name,
+        'nombre_images' => $product->images->count(),
+        'image_principale' => $mainImageUrl ?? 'aucune',
+        'valide' => $hasValidImage ? 'oui' : 'non',
+        'note_moyenne' => $averageRating,
+        'nombre_avis' => $reviewCount
+    ]);
+
+    // En-têtes HTTP stricts pour Google Merchant
+    return response($xml, 200)
+        ->header('Content-Type', 'application/xml; charset=UTF-8')
+        ->header('Content-Encoding', 'identity')
+        ->header('Cache-Control', 'no-cache, must-revalidate')
+        ->header('Content-Length', strlen($xml));
+}
+
+/**
+ * Nettoie le contenu d'un avis pour le XML
+ */
+private function cleanReviewContent($content)
+{
+    // Supprimer les emojis et caractères spéciaux non supportés
+    $content = preg_replace('/[\x{1F600}-\x{1F64F}\x{1F300}-\x{1F5FF}\x{1F680}-\x{1F6FF}\x{1F1E0}-\x{1F1FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}]/u', '', $content);
+    
+    // Supprimer les caractères de contrôle
+    $content = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $content);
+    
+    // Limiter la longueur (Google recommande 1000 caractères max pour les avis)
+    if (mb_strlen($content) > 1000) {
+        $content = mb_substr($content, 0, 997) . '...';
+    }
+    
+    // Supprimer les espaces multiples
+    $content = preg_replace('/\s+/', ' ', $content);
+    
+    return trim($content);
+}
+
+/**
+ * Extrait la marque du nom du produit
+ */
+private function extractBrandFromName($name)
+{
+    $brands = [
+        'STIHL', 'HONDA', 'SUNSEEKER', 'MAMMOTION', 'GTM', 'VIKING',
+        'KAWASAKI', 'BOSCH', 'MAKITA', 'DEWALT', 'BLACK+DECKER',
+        'RYOBI', 'EINHELL', 'GARDENA', 'WOLF', 'MTD', 'TORO',
+        'JOHN DEERE', 'KUBOTA', 'YAMAHA', 'SUZUKI', 'BRIGGS', 'STRATTON'
+    ];
+    
+    foreach ($brands as $brand) {
+        if (stripos($name, $brand) !== false) {
+            return $brand;
+        }
+    }
+    
+    return null;
+}
 
     /**
      * ✅ Valide une image selon les critères Google Merchant
