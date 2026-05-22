@@ -4,6 +4,7 @@ use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CheckoutController;
 
+use App\Http\Controllers\ReviewController;
 /*
 |--------------------------------------------------------------------------
 | Front Website Routes
@@ -56,3 +57,13 @@ Route::get('/resize-images', function () {
     $stats = $controller->resizeAllProductImages();
     return response()->json($stats);
 });
+
+
+
+
+// Route pour soumettre un avis
+Route::post('/product/{product}/review', [HomeController::class, 'submitReview'])->name('product.review.submit');
+
+// Routes API pour les avis (optionnel, si vous voulez du AJAX)
+Route::get('/api/product/{product}/reviews', [ReviewController::class, 'getProductReviews']);
+Route::post('/api/product/{product}/review', [ReviewController::class, 'storeReview']);

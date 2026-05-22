@@ -6,6 +6,190 @@
 <link rel='stylesheet'
     href="{{ asset('assets/css/show.css') }}" type='text/css'
     media='all' />
+<style>
+    /* Styles pour les étoiles et avis */
+    .star-rating-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 5px 0;
+    }
+    
+    .star-rating {
+        font-family: 'star';
+        overflow: hidden;
+        position: relative;
+        height: 1.2em;
+        line-height: 1.2;
+        font-size: 0.85em;
+        width: 5.3em;
+        color: #ddd;
+        display: inline-block;
+    }
+    
+    .star-rating::before {
+        content: '\53\53\53\53\53';
+        float: left;
+        top: 0;
+        left: 0;
+        position: absolute;
+        color: #ddd;
+    }
+    
+    .star-rating span {
+        overflow: hidden;
+        float: left;
+        top: 0;
+        left: 0;
+        position: absolute;
+        padding-top: 1.2em;
+        color: #f4c542;
+    }
+    
+    .star-rating span::before {
+        content: '\53\53\53\53\53';
+        top: 0;
+        position: absolute;
+        left: 0;
+        color: #f4c542;
+    }
+    
+    .rating-text {
+        font-size: 14px;
+        color: #666;
+        font-weight: 500;
+    }
+    
+    .review-count {
+        font-size: 14px;
+        color: #666;
+        text-decoration: underline;
+    }
+    
+    /* Styles pour la section des avis */
+    .reviews-section {
+        margin-top: 40px;
+        padding: 20px;
+        background: #f9f9f9;
+        border-radius: 8px;
+    }
+    
+    .reviews-section h2 {
+        margin-bottom: 20px;
+        font-size: 24px;
+        color: #333;
+    }
+    
+    .review-item {
+        background: white;
+        padding: 20px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .review-author {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .review-date {
+        font-size: 12px;
+        color: #999;
+    }
+    
+    .review-stars {
+        color: #f4c542;
+        margin-bottom: 10px;
+    }
+    
+    .review-comment {
+        color: #555;
+        line-height: 1.6;
+    }
+    
+    .review-verified {
+        font-size: 12px;
+        color: #28a745;
+        margin-top: 5px;
+    }
+    
+    .review-country {
+        font-size: 12px;
+        color: #999;
+        margin-left: 10px;
+    }
+    
+    .no-reviews {
+        text-align: center;
+        padding: 40px;
+        color: #999;
+    }
+    
+    /* Formulaire d'avis */
+    .review-form {
+        margin-top: 30px;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .review-form h3 {
+        margin-bottom: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    .star-selector {
+        display: flex;
+        gap: 5px;
+        font-size: 24px;
+        color: #ddd;
+        cursor: pointer;
+    }
+    
+    .star-selector .star.selected {
+        color: #f4c542;
+    }
+    
+    .submit-review-btn {
+        background: #28a745;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .submit-review-btn:hover {
+        background: #218838;
+    }
+</style>
 @endpush
 
 @section('body_class',
@@ -91,9 +275,23 @@ e--ua-webkit cht-in-desktop cht-landscape')
                     <div class="summary entry-summary">
                         <h1 class="product_title entry-title">{{ $article->name }}</h1>
 
+                        {{-- Section des étoiles et avis --}}
                         <div class="woocommerce-product-rating" style="margin-bottom:10px;">
-                            <div class="star-rating"><span style="width:0%">{{ __('product.rating', ['rating' => '0']) }}</span></div>
-                            <a href="#reviews" class="woocommerce-review-link" rel="nofollow"><span class="count">0</span> {{ __('product.reviews') }}</a>
+                            @php
+                                $averageRating = $article->average_rating ?? 0;
+                                $reviewCount = $article->review_count ?? 0;
+                                $ratingPercentage = ($averageRating / 5) * 100;
+                            @endphp
+                            
+                            <div class="star-rating-wrapper">
+                                <div class="star-rating">
+                                    <span style="width:{{ $ratingPercentage }}%;"></span>
+                                </div>
+                                <span class="rating-text">({{ number_format($averageRating, 1) }})</span>
+                                <a href="#reviews" class="review-count">
+                                    {{ $reviewCount }} {{ __('product.reviews') }}
+                                </a>
+                            </div>
                         </div>
 
                         @if ($article->short_description)
@@ -133,7 +331,6 @@ e--ua-webkit cht-in-desktop cht-landscape')
                         </span>
                         @endif
 
-
                         {{-- Flamme animée --}}
                         <div class="sales-info">
                             <span class="fire-icon-wrapper">
@@ -167,10 +364,8 @@ e--ua-webkit cht-in-desktop cht-landscape')
                                 </button>
                             </div>
 
-
-
                             {{-- Bouton Acheter maintenant --}}
-                            <a href="{{ route('checkout') }}" class="buy-now-btn" id="buy-now-btn" disabled>
+                            <a href="{{ route('checkout') }}" class="buy-now-btn" id="buy-now-btn">
                                 {{ __('product.buy_now') }}
                             </a>
 
@@ -246,6 +441,101 @@ e--ua-webkit cht-in-desktop cht-landscape')
                         </div>
                     </div>
                     @endif
+
+                    {{-- Section des avis --}}
+                    <div class="reviews-section" id="reviews">
+                        <h2>{{ __('product.customer_reviews') }}</h2>
+                        
+                        @php
+                            $reviews = $article->reviews()->approved()->orderBy('created_at', 'desc')->get();
+                        @endphp
+                        
+                        @if($reviews->count() > 0)
+                            @foreach($reviews as $review)
+                            <div class="review-item">
+                                <div class="review-header">
+                                    <span class="review-author">
+                                        {{ $review->author_name }}
+                                        @if($review->author_country)
+                                        <span class="review-country">📍 {{ $review->author_country }}</span>
+                                        @endif
+                                    </span>
+                                    <span class="review-date">{{ $review->created_at->format('d/m/Y') }}</span>
+                                </div>
+                                
+                                <div class="review-stars">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        @if($i <= $review->rating)
+                                            <i class="fas fa-star"></i>
+                                        @else
+                                            <i class="far fa-star"></i>
+                                        @endif
+                                    @endfor
+                                </div>
+                                
+                                <div class="review-comment">
+                                    {{ $review->comment }}
+                                </div>
+                                
+                                @if($review->is_verified)
+                                <div class="review-verified">
+                                    ✓ {{ __('product.verified_purchase') }}
+                                </div>
+                                @endif
+                            </div>
+                            @endforeach
+                        @else
+                            <div class="no-reviews">
+                                <p>{{ __('product.no_reviews_yet') }}</p>
+                            </div>
+                        @endif
+                        
+                        {{-- Formulaire d'avis --}}
+                        <div class="review-form">
+                            <h3>{{ __('product.leave_review') }}</h3>
+                            <form action="{{ route('product.review.submit', $article->id) }}" method="POST">
+                                @csrf
+                                <div class="form-group">
+                                    <label for="author_name">{{ __('product.your_name') }} *</label>
+                                    <input type="text" id="author_name" name="author_name" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="author_email">{{ __('product.your_email') }} *</label>
+                                    <input type="email" id="author_email" name="author_email" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>{{ __('product.your_rating') }} *</label>
+                                    <input type="hidden" name="rating" id="rating-input" value="5">
+                                    <div class="star-selector" id="star-selector">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <span class="star selected" data-rating="{{ $i }}">★</span>
+                                        @endfor
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="comment">{{ __('product.your_review') }} *</label>
+                                    <textarea id="comment" name="comment" rows="4" required minlength="10"></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="country">{{ __('product.your_country') }}</label>
+                                    <select id="country" name="country">
+                                        <option value="PT">Portugal</option>
+                                        <option value="FR">France</option>
+                                        <option value="ES">Espagne</option>
+                                        <option value="IT">Italie</option>
+                                    </select>
+                                </div>
+                                
+                                <button type="submit" class="submit-review-btn">
+                                    {{ __('product.submit_review') }}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
 
                     {{-- Related Products --}}
                     @if ($relatedArticles->count() > 0)
@@ -333,9 +623,47 @@ $inquiryUrl = route('product.inquiry', ['id' => $article->id]);
 @push('scripts')
 <script src="{{ asset('assets/js/product/image-gallery.js') }}"></script>
 
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+
+        // Gestion des étoiles dans le formulaire
+        const stars = document.querySelectorAll('#star-selector .star');
+        const ratingInput = document.getElementById('rating-input');
+        
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = this.getAttribute('data-rating');
+                ratingInput.value = rating;
+                
+                stars.forEach(s => {
+                    if (s.getAttribute('data-rating') <= rating) {
+                        s.classList.add('selected');
+                    } else {
+                        s.classList.remove('selected');
+                    }
+                });
+            });
+            
+            star.addEventListener('mouseover', function() {
+                const rating = this.getAttribute('data-rating');
+                stars.forEach(s => {
+                    if (s.getAttribute('data-rating') <= rating) {
+                        s.style.color = '#f4c542';
+                    }
+                });
+            });
+            
+            star.addEventListener('mouseout', function() {
+                const currentRating = ratingInput.value;
+                stars.forEach(s => {
+                    if (s.getAttribute('data-rating') <= currentRating) {
+                        s.style.color = '#f4c542';
+                    } else {
+                        s.style.color = '#ddd';
+                    }
+                });
+            });
+        });
 
         const productConfig = {
             productId: '{{ $productId }}',
@@ -378,93 +706,73 @@ $inquiryUrl = route('product.inquiry', ['id' => $article->id]);
         const increaseBtn = document.getElementById('custom-qty-increase');
         const decreaseBtn = document.getElementById('custom-qty-decrease');
 
-        increaseBtn.onclick = function() {
-            let val = parseInt(qtyInput.value) || 1;
-            if (val < maxStock) {
-                qtyInput.value = val + 1;
-            }
-        };
+        if (increaseBtn) {
+            increaseBtn.onclick = function() {
+                let val = parseInt(qtyInput.value) || 1;
+                if (val < maxStock) {
+                    qtyInput.value = val + 1;
+                }
+            };
+        }
 
-        decreaseBtn.onclick = function() {
-            let val = parseInt(qtyInput.value) || 1;
-            if (val > 1) {
-                qtyInput.value = val - 1;
-            }
-        };
+        if (decreaseBtn) {
+            decreaseBtn.onclick = function() {
+                let val = parseInt(qtyInput.value) || 1;
+                if (val > 1) {
+                    qtyInput.value = val - 1;
+                }
+            };
+        }
 
-        qtyInput.onchange = function() {
-            let val = parseInt(this.value) || 1;
-            if (val < 1) {
-                this.value = 1;
-            }
-            if (val > maxStock) {
-                this.value = maxStock;
-            }
-        };
+        if (qtyInput) {
+            qtyInput.onchange = function() {
+                let val = parseInt(this.value) || 1;
+                if (val < 1) {
+                    this.value = 1;
+                }
+                if (val > maxStock) {
+                    this.value = maxStock;
+                }
+            };
+        }
 
         // AJOUT PANIER
-        document.getElementById('custom-add-to-cart-btn').onclick = function() {
-            const quantity = parseInt(qtyInput.value) || 1;
-            const product = {
-                id: {{ $article->id }},
-                name: '{{ addslashes($article->name) }}',
-                price: {{ $article->prix_actuel }},
-                old_price: {{ $article->prix_original ?? 'null' }},
-                image: '{{ $article->images->first() ? asset($article->images->first()->fichier) : '' }}',
-                slug: '{{ $article->slug }}',
-                quantity: quantity
-            };
+        const addToCartBtn = document.getElementById('custom-add-to-cart-btn');
+        if (addToCartBtn) {
+            addToCartBtn.onclick = function() {
+                const quantity = parseInt(qtyInput.value) || 1;
+                const product = {
+                    id: {{ $article->id }},
+                    name: '{{ addslashes($article->name) }}',
+                    price: {{ $article->prix_actuel }},
+                    old_price: {{ $article->prix_original ?? 'null' }},
+                    image: '{{ $article->images->first() ? asset($article->images->first()->fichier) : '' }}',
+                    slug: '{{ $article->slug }}',
+                    quantity: quantity
+                };
 
-            this.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                this.style.transform = 'scale(1)';
-            }, 150);
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
 
-            if (window.cart && typeof window.cart.addToCart === 'function') {
-                window.cart.addToCart(product);
-            } else {
-                let cart = JSON.parse(localStorage.getItem('portabox_cart') || '[]');
-                const existing = cart.find(item => item.id === product.id);
-                if (existing) {
-                    existing.quantity += quantity;
+                if (window.cart && typeof window.cart.addToCart === 'function') {
+                    window.cart.addToCart(product);
                 } else {
-                    cart.push(product);
+                    let cart = JSON.parse(localStorage.getItem('portabox_cart') || '[]');
+                    const existing = cart.find(item => item.id === product.id);
+                    if (existing) {
+                        existing.quantity += quantity;
+                    } else {
+                        cart.push(product);
+                    }
+                    localStorage.setItem('portabox_cart', JSON.stringify(cart));
+                    if (typeof showNotification === 'function') {
+                        showNotification(productConfig.translations.addToCart);
+                    }
                 }
-                localStorage.setItem('portabox_cart', JSON.stringify(cart));
-                showNotification(productConfig.translations.addToCart);
-            }
-        };
-
-        // ACHETER MAINTENANT
-        document.getElementById('buy-now-btn').onclick = function(e) {
-            const agreeTerms = document.getElementById('agree-terms');
-            if (!agreeTerms.checked) {
-                e.preventDefault();
-                showNotification(productConfig.translations.acceptTerms);
-                return false;
-            }
-            const quantity = parseInt(qtyInput.value) || 1;
-            const product = {
-                id: {{ $article->id }},
-                name: '{{ addslashes($article->name) }}',
-                price: {{ $article->prix_actuel }},
-                image: '{{ $article->images->first() ? asset($article->images->first()->fichier) : '' }}',
-                slug: '{{ $article->slug }}',
-                quantity: quantity
             };
-            let cart = JSON.parse(localStorage.getItem('portabox_cart') || '[]');
-            const existing = cart.find(item => item.id === product.id);
-            if (existing) {
-                existing.quantity += quantity;
-            } else {
-                cart.push(product);
-            }
-            localStorage.setItem('portabox_cart', JSON.stringify(cart));
-            if (window.cart && typeof window.cart.updateCartDisplay === 'function') {
-                window.cart.cart = JSON.parse(localStorage.getItem('portabox_cart') || '[]');
-                window.cart.updateCartDisplay();
-            }
-        };
+        }
 
         // FAVORIS
         const wishlistBtn = document.querySelector('.add-to-wishlist-btn');
@@ -475,9 +783,13 @@ $inquiryUrl = route('product.inquiry', ['id' => $article->id]);
                 if (!wishlist.includes({{ $article->id }})) {
                     wishlist.push({{ $article->id }});
                     localStorage.setItem('portabox_wishlist', JSON.stringify(wishlist));
-                    showNotification(productConfig.translations.addToWishlist);
+                    if (typeof showNotification === 'function') {
+                        showNotification(productConfig.translations.addToWishlist);
+                    }
                 } else {
-                    showNotification(productConfig.translations.alreadyInWishlist);
+                    if (typeof showNotification === 'function') {
+                        showNotification(productConfig.translations.alreadyInWishlist);
+                    }
                 }
             };
         }
@@ -491,9 +803,13 @@ $inquiryUrl = route('product.inquiry', ['id' => $article->id]);
                 if (!compare.includes({{ $article->id }})) {
                     compare.push({{ $article->id }});
                     localStorage.setItem('portabox_compare', JSON.stringify(compare));
-                    showNotification(productConfig.translations.addToCompare);
+                    if (typeof showNotification === 'function') {
+                        showNotification(productConfig.translations.addToCompare);
+                    }
                 } else {
-                    showNotification(productConfig.translations.alreadyInCompare);
+                    if (typeof showNotification === 'function') {
+                        showNotification(productConfig.translations.alreadyInCompare);
+                    }
                 }
             };
         }
@@ -539,9 +855,6 @@ $inquiryUrl = route('product.inquiry', ['id' => $article->id]);
         }
         updateCountdown();
         setInterval(updateCountdown, 60000);
-
-    
-
     });
 </script>
 @endpush

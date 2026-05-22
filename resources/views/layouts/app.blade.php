@@ -200,7 +200,53 @@
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 
+<style>
+      .star-rating {
+    font-family: 'star';
+    overflow: hidden;
+    position: relative;
+    height: 1.618em;
+    line-height: 1.618;
+    font-size: 0.8em;
+    width: 5.3em;
+    color: #f4c542;
+}
 
+.star-rating::before {
+    content: '\53\53\53\53\53';
+    opacity: 0.25;
+    float: left;
+    top: 0;
+    left: 0;
+    position: absolute;
+}
+
+.star-rating span {
+    overflow: hidden;
+    float: left;
+    top: 0;
+    left: 0;
+    position: absolute;
+    padding-top: 1.5em;
+    color: #f4c542;
+}
+
+.star-rating span::before {
+    content: '\53\53\53\53\53';
+    top: 0;
+    position: absolute;
+    left: 0;
+}
+
+.star-rating .rating-text {
+    position: absolute;
+    right: -60px;
+    top: 0;
+    font-size: 12px;
+    color: #666;
+    font-family: Arial, sans-serif;
+}
+</style>
 
 </head>
 

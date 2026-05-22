@@ -101,11 +101,16 @@
                                                                 </a>
                                                             </h3>
 
+                                                          <div class="star-rating-wrapper">
                                                             <div class="star-rating">
-                                                                <span style="width:0%;">
-                                                                    {{ __('home.products.rating', ['rating' => $article->rating ?? 0]) }}
-                                                                </span>
+                                                                @php
+                                                                    $rating = $article->average_rating ?? 0;
+                                                                    $ratingPercentage = ($rating / 5) * 100;
+                                                                @endphp
+                                                                <span style="width:{{ $ratingPercentage }}%;"></span>
                                                             </div>
+                                                            <span class="rating-number">({{ number_format($rating, 1) }})</span>
+                                                        </div>
 
                                                             <span class="price">
                                                                 @if($prixOriginal && $prixOriginal > $prixActuel)
@@ -247,11 +252,16 @@
                                                                         {{ $article->name }}
                                                                     </a>
                                                                 </h3>
-                                                                <div class="star-rating">
-                                                                    <span style="width:0%;">
-                                                                        {{ __('home.products.rating', ['rating' => $article->rating ?? 0]) }}
-                                                                    </span>
-                                                                </div>
+                                                              <div class="star-rating-wrapper">
+                <div class="star-rating">
+                    @php
+                        $rating = $article->average_rating ?? 0;
+                        $ratingPercentage = ($rating / 5) * 100;
+                    @endphp
+                    <span style="width:{{ $ratingPercentage }}%;"></span>
+                </div>
+                <span class="rating-number">({{ number_format($rating, 1) }})</span>
+            </div>
                                                                 <span class="price">
                                                                     @if($prixOriginal && $prixOriginal > $prixActuel)
                                                                     <del aria-hidden="true">

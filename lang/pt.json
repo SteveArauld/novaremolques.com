@@ -688,6 +688,25 @@
     "cart.translations.empty_cart_text": "Descubra nossos produtos e adicione-os ao seu carrinho",
     "cart.translations.cart_summary": "Resumo do carrinho",
     "cart.translations.item": "artigo",
-    "cart.translations.items": "artigos"
+    "cart.translations.items": "artigos",
+
+    
+    "product.customer_reviews": "Avaliações dos clientes",
+    "product.review": "avaliação",
+    "product.no_reviews_yet": "Ainda não há avaliações. Seja o primeiro a avaliar este produto!",
+    "product.leave_review": "Deixar uma avaliação",
+    "product.your_name": "O seu nome",
+    "product.your_email": "O seu email",
+    "product.your_rating": "A sua classificação",
+    "product.your_review": "A sua avaliação",
+    "product.your_country": "O seu país",
+    "product.submit_review": "Enviar avaliação",
+    "product.verified_purchase": "Compra verificada",
+    "product.based_on": "Com base em :count avaliações",
+    "product.stars": ":count estrelas",
+    "product.review_success": "A sua avaliação foi enviada com sucesso!",
+    "product.review_error": "Ocorreu um erro ao enviar a sua avaliação.",
+    "product.review_thank_you": "Obrigado pela sua avaliação!"
+
 
 }

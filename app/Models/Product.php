@@ -10,8 +10,13 @@ class Product extends Model
     use HasTranslations;
 
     protected $fillable = [
-        'url', 'slug', 'name', 'description', 
-        'prix_original', 'prix_actuel', 'sku'
+        'url',
+        'slug',
+        'name',
+        'description',
+        'prix_original',
+        'prix_actuel',
+        'sku'
     ];
 
     public array $translatable = ['name', 'description'];
@@ -29,5 +34,27 @@ class Product extends Model
     public function getCategoryAttribute()
     {
         return $this->categories()->first();
+    }
+
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    // Ajoutez ces méthodes dans la classe Product
+    public function getAverageRatingAttribute()
+    {
+        return $this->reviews()->approved()->avg('rating') ?? 0;
+    }
+
+    public function getReviewCountAttribute()
+    {
+        return $this->reviews()->approved()->count();
+    }
+
+    public function getApprovedReviews()
+    {
+        return $this->reviews()->approved()->orderBy('created_at', 'desc');
     }
 }
