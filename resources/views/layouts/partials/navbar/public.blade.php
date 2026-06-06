@@ -1,6 +1,6 @@
 <section class="ts-header has-hotline has-search-category header-fullwidth" style="background: #f6f8fa;">
     <div class="container" style="display: flex; justify-content:space-between; align-items: center; ">
-        <span class=""><a href="tel:+34657942736">{{ __('header.service.hotline') }}: <b>+34 657 94 2736</b></a></span>
+        <span class=""><a href="tel:+351912026453">{{ __('header.service.hotline') }}: <b>+351 912 026 453</b></a></span>
 
           <div class="header-left">
         <!-- Sélecteur de langues CORRIGÉ -->                                                               
