@@ -247,7 +247,7 @@
     font-family: Arial, sans-serif;
 }
 </style>
-
+<meta name="google-site-verification" content="xGoMJps76w9XZGPCw-Ejf8oi_-UXqyAfKkxgwJwQmRM" />
 </head>
 
 <body class="@yield('body_class', 'home wp-singular page-template-default page page-id-8171 wp-theme-merto theme-merto woocommerce-no-js wide header-v1 product-label-rectangle product-hover-style-v2 product-border-radius vertical-menu-fixed ts_desktop elementor-default elementor-kit-10348 elementor-page elementor-page-8171')">
