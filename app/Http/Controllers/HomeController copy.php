@@ -185,9 +185,9 @@ public function submitReview(Request $request, $productId)
         if ($category) {
             $query->whereHas('categories', function ($q) use ($category, $locale) {
                 $q->where('slug', $category)
-                    ->orWhere('name->fr', 'LIKE', "%{$category}%")
                     ->orWhere('name->es', 'LIKE', "%{$category}%")
-                    ->orWhere('name->it', 'LIKE', "%{$category}%");
+                    ->orWhere('name->es', 'LIKE', "%{$category}%")
+                    ->orWhere('name->es', 'LIKE', "%{$category}%");
             });
         }
 
@@ -229,7 +229,7 @@ public function submitReview(Request $request, $productId)
             if ($cat) {
                 $catName = $cat->name;
                 if (is_array($catName)) {
-                    $categoryName = $catName[$locale] ?? $catName['fr'] ?? '';
+                    $categoryName = $catName[$locale] ?? $catName['es'] ?? '';
                 } else {
                     $categoryName = $catName;
                 }
@@ -695,7 +695,7 @@ public function submitReview(Request $request, $productId)
 
         // Nom de fichier basé sur le NOM du produit (PT en priorité)
         $rawName = is_array($product->name)
-            ? ($product->name['pt'] ?? $product->name['es'] ?? '')
+            ? ($product->name['es'] ?? $product->name['es'] ?? '')
             : $product->name;
 
         $baseFilename = $this->sanitizeFilename($rawName ?: ('produto-' . $product->id));
@@ -732,10 +732,10 @@ private function generateProductXml($product, array &$stats = [])
 {
     // Portugais en priorité (langue principale du compte Merchant), espagnol en fallback
     $name = is_array($product->name)
-        ? ($product->name['pt'] ?? $product->name['es'] ?? $product->name['fr'] ?? '')
+        ? ($product->name['es'] ?? $product->name['es'] ?? $product->name['es'] ?? '')
         : $product->name;
     $description = is_array($product->description)
-        ? ($product->description['pt'] ?? $product->description['es'] ?? $product->description['fr'] ?? '')
+        ? ($product->description['es'] ?? $product->description['es'] ?? $product->description['es'] ?? '')
         : $product->description;
 
     $name = trim($this->formatTitleForGoogle($name));
@@ -764,7 +764,7 @@ private function generateProductXml($product, array &$stats = [])
 
     $categories = $product->categories->map(function ($cat) {
         return is_array($cat->name)
-            ? ($cat->name['pt'] ?? $cat->name['es'] ?? $cat->name['fr'] ?? '')
+            ? ($cat->name['es'] ?? $cat->name['es'] ?? $cat->name['es'] ?? '')
             : $cat->name;
     })->filter()->implode(' > ');
 
@@ -805,7 +805,7 @@ private function generateProductXml($product, array &$stats = [])
     $xml .= '    <title>' . htmlspecialchars(config('app.name'), ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</title>' . "\n";
     $xml .= '    <link>' . config('app.url') . '</link>' . "\n";
     $xml .= '    <description>Feed de produto Google Merchant</description>' . "\n";
-    $xml .= '    <language>pt</language>' . "\n";
+    $xml .= '    <language>es</language>' . "\n";
 
     $xml .= '    <item>' . "\n";
     $xml .= '      <g:id>' . $product->id . '</g:id>' . "\n";
@@ -883,7 +883,7 @@ private function sanitizeFilename($name)
 
 /**
  * Devine la catégorie Google officielle selon le contenu du produit.
- * Référence: https://www.google.com/basepages/producttype/taxonomy-with-ids.fr-FR.txt
+ * Référence: https://www.google.com/basepages/producttype/taxonomy-with-ids.es-FR.txt
  */
 private function guessGoogleProductCategory($categoriesText, $name)
 {
