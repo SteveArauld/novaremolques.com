@@ -18,16 +18,16 @@ class LanguageMiddleware
         } elseif (Cookie::has('locale')) {
             $locale = Cookie::get('locale');
         } else {
-            $locale = 'pt'; 
+            $locale = 'es'; 
         }
 
-        $allowedLocales = ['fr', 'pt', 'es'];
+        $allowedLocales = [ 'es'];
         if (in_array($locale, $allowedLocales)) {
             App::setLocale($locale);
             Session::put('locale', $locale);
         } else {
-            App::setLocale('pt');
-            Session::put('locale', 'pt');
+            App::setLocale('es');
+            Session::put('locale', 'es');
         }
 
         return $next($request);

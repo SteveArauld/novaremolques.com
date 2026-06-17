@@ -1,88 +1,90 @@
 <section class="ts-header has-hotline has-search-category header-fullwidth" style="background: #f6f8fa;">
     <div class="container" style="display: flex; justify-content:space-between; align-items: center; ">
-        <span class=""><a href="tel:+351912026453">{{ __('header.service.hotline') }}: <b>+351 912 026 453</b></a></span>
+        <span class=""><a href="tel:+34657942736">{{ __('header.service.hotline') }}: <b>+34 657 94 27 36</b></a></span>
 
-          <div class="header-left">
-        <!-- Sélecteur de langues CORRIGÉ -->                                                               
-        <div class="language-selector-wrapper">
-            <div class="language-selector" id="languageSelector">
-                <button class="language-dropdown-toggle" id="languageDropdownToggle" type="button" aria-expanded="false">
-                  
-            
-                
-                
-                @if (app()->getLocale() === 'fr')
-                    <img class="flag-icon" width="25" src="{{ asset('assets/images/flags/fr.svg') }}" alt="Français">
-                    <span>{{ __('header.language.french') }}</span>
-
-                    @elseif (app()->getLocale() === 'pt')
-                    <img class="flag-icon" width="25" src="{{ asset('assets/images/flags/pt.svg') }}" alt="Português">
-                    <span>{{ __('header.language.portuguese') }}</span>
-                    @elseif (app()->getLocale() === 'es')
-                    <img class="flag-icon" width="25" src="{{ asset('assets/images/flags/es.svg') }}" alt="Español">
-                    <span>{{ __('header.language.spanish') }}</span>
-                    @endif
-                    <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                        <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5"
-                            stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                </button>
-                <ul class="language-dropdown-menu" id="languageDropdownMenu" style="display:none;">
-                   <li>
-                        <a class="language-dropdown-item {{ app()->getLocale() == 'pt' ? 'active' : '' }}"
-                            href="{{ route('lang.switch', 'pt') }}">
-                            <div class="language-item-content">
-                                <img class="flag-icon" width="25" src="{{ asset('assets/images/flags/pt.svg') }}" alt="Português">
-                                <span>{{ __('header.language.portuguese') }}</span>
-                            </div>
-                            @if (app()->getLocale() == 'pt')
-                            <svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                <path d="M11.6667 3.5L5.25 9.91667L2.33333 7" stroke="#2c3e50"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            @endif
-                        </a>
-                    </li>
-                    <li>
-                        <a class="language-dropdown-item {{ app()->getLocale() == 'es' ? 'active' : '' }}"
-                            href="{{ route('lang.switch', 'es') }}">
-                            <div class="language-item-content">
-                                <img class="flag-icon" width="25" src="{{ asset('assets/images/flags/es.svg') }}" alt="Español">
-                                <span>{{ __('header.language.spanish') }}</span>
-                            </div>
-                            @if (app()->getLocale() == 'es')
-                            <svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                <path d="M11.6667 3.5L5.25 9.91667L2.33333 7" stroke="#2c3e50"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            @endif
-                        </a>
-                    </li> 
-                
-                <li>
-                        <a class="language-dropdown-item {{ app()->getLocale() == 'fr' ? 'active' : '' }}"
-                            href="{{ route('lang.switch', 'fr') }}">
-                            <div class="language-item-content">
-                                <img class="flag-icon" width="25" src="{{ asset('assets/images/flags/fr.svg') }}" alt="Français">
-                                <span>{{ __('header.language.french') }}</span>
-                            </div>
-                            @if (app()->getLocale() == 'fr')
-                            <svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                <path d="M11.6667 3.5L5.25 9.91667L2.33333 7" stroke="#2c3e50"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            @endif
-                        </a>
-                    </li>
+         <div class="header-left">
+            <!-- Sélecteur de langues CORRIGÉ -->
+            <div class="language-selector-wrapper">
+                <div class="language-selector" id="languageSelector">
+                    <button class="language-dropdown-toggle" id="languageDropdownToggle" type="button" aria-expanded="false">
 
 
-                 
-                </ul>
+
+
+                      
+                        <!-- <img class="flag-icon" width="25" src="{{ asset('assets/images/flags/fr.svg') }}" alt="Français">
+                        <span>{{ __('header.language.french') }}</span>
+
+                       
+                        <img class="flag-icon" width="25" src="{{ asset('assets/images/flags/pt.svg') }}" alt="Português">
+                        <span>{{ __('header.language.portuguese') }}</span>
+                        -->
+
+                        @if(app()->getLocale() === 'es')
+                        <img class="flag-icon" width="25" src="{{ asset('assets/images/flags/es.svg') }}" alt="Español">
+                        <span>{{ __('header.language.spanish') }}</span>
+                        @endif
+                        <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <ul class="language-dropdown-menu" id="languageDropdownMenu" style="display:none;">
+                        <!-- <li>
+                            <a class="language-dropdown-item {{ app()->getLocale() == 'pt' ? 'active' : '' }}"
+                                href="{{ route('lang.switch', 'pt') }}">
+                                <div class="language-item-content">
+                                    <img class="flag-icon" width="25" src="{{ asset('assets/images/flags/pt.svg') }}" alt="Português">
+                                    <span>{{ __('header.language.portuguese') }}</span>
+                                </div>
+                                @if (app()->getLocale() == 'pt')
+                                <svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                    <path d="M11.6667 3.5L5.25 9.91667L2.33333 7" stroke="#2c3e50"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                @endif
+                            </a>
+                        </li> -->
+                        <li>
+                            <a class="language-dropdown-item {{ app()->getLocale() == 'es' ? 'active' : '' }}"
+                                href="{{ route('lang.switch', 'es') }}">
+                                <div class="language-item-content">
+                                    <img class="flag-icon" width="25" src="{{ asset('assets/images/flags/es.svg') }}" alt="Español">
+                                    <span>{{ __('header.language.spanish') }}</span>
+                                </div>
+                                @if (app()->getLocale() == 'es')
+                                <svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                    <path d="M11.6667 3.5L5.25 9.91667L2.33333 7" stroke="#2c3e50"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                @endif
+                            </a>
+                        </li>
+
+                        <!-- <li>
+                            <a class="language-dropdown-item {{ app()->getLocale() == 'fr' ? 'active' : '' }}"
+                                href="{{ route('lang.switch', 'fr') }}">
+                                <div class="language-item-content">
+                                    <img class="flag-icon" width="25" src="{{ asset('assets/images/flags/fr.svg') }}" alt="Français">
+                                    <span>{{ __('header.language.french') }}</span>
+                                </div>
+                                @if (app()->getLocale() == 'fr')
+                                <svg class="check-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                    <path d="M11.6667 3.5L5.25 9.91667L2.33333 7" stroke="#2c3e50"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                @endif
+                            </a>
+                        </li> -->
+
+
+
+                    </ul>
+                </div>
             </div>
-        </div>
+        </div> 
     </div>
-    </div>
-  
+
 </section>
 <header class="ts-header has-hotline has-search-category header-fullwidth">
     <div class="overlay"></div>
@@ -92,23 +94,23 @@
             <div class="container">
 
                 <div style="display:flex; gap:10px ">
-                    
-                <div class="ts-mobile-icon-toggle visible-xs">
-                    <span class="icon"></span>
-                </div>
 
-                <div class="logo-wrapper">
-                    <div class="logo">
-                        <a href="{{ route('home') }}">
-                            <img src="{{ asset('assets/images/logo.png') }}"
-                                alt="Nova  Remolques" title="Nova  Remolques" class="logo normal-logo" />
-                            <img src="{{ asset('assets/images/logo.png') }}"
-                                alt="Nova  Remolques" title="Nova  Remolques" class=" logo mobile-logo" />
-                            <img src="{{ asset('assets/images/logo.png') }}"
-                                alt="Nova  Remolques" title="Nova  Remolques" class=" logo sticky-logo" />
-                        </a>
+                    <div class="ts-mobile-icon-toggle visible-xs">
+                        <span class="icon"></span>
                     </div>
-                </div>
+
+                    <div class="logo-wrapper">
+                        <div class="logo">
+                            <a href="{{ route('home') }}">
+                                <img src="{{ asset('assets/images/logo.png') }}"
+                                    alt="Nova  Remolques" title="Nova  Remolques" class="logo normal-logo" />
+                                <img src="{{ asset('assets/images/logo.png') }}"
+                                    alt="Nova  Remolques" title="Nova  Remolques" class=" logo mobile-logo" />
+                                <img src="{{ asset('assets/images/logo.png') }}"
+                                    alt="Nova  Remolques" title="Nova  Remolques" class=" logo sticky-logo" />
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="header-center">

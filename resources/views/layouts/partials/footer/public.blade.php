@@ -18,7 +18,7 @@
                     </div>
                     <div class="elementor-element elementor-element-3ea875a elementor-widget elementor-widget-text-editor"
                          data-id="3ea875a" data-element_type="widget" data-widget_type="text-editor.default">
-                        <p>+351 912 026 453</p>
+                        <p>+34 657 94 27 36</p>
                     </div>
                     <div class="elementor-element elementor-element-014b340 elementor-widget elementor-widget-text-editor"
                          data-id="014b340" data-element_type="widget" data-widget_type="text-editor.default">
