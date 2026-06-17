@@ -847,12 +847,7 @@ private function generateProductXml($product, array &$stats = [])
         $xml .= '      <g:product_type>' . htmlspecialchars($categories, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</g:product_type>' . "\n";
     }
 
-    // Livraison Portugal en premier (marché principal), puis Espagne
-    $xml .= '      <g:shipping>' . "\n";
-    $xml .= '        <g:country>PT</g:country>' . "\n";
-    $xml .= '        <g:service>Padrão</g:service>' . "\n";
-    $xml .= '        <g:price>0.00 EUR</g:price>' . "\n";
-    $xml .= '      </g:shipping>' . "\n";
+ 
 
     $xml .= '      <g:shipping>' . "\n";
     $xml .= '        <g:country>ES</g:country>' . "\n";
